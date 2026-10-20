@@ -10,6 +10,7 @@ zero behavior change without the env vars set.
 
 import json
 import os
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -44,8 +45,12 @@ def load(redis_key, local_key, default):
             raw = result.get("result")
             if raw:
                 return json.loads(raw)
-        except Exception:
-            pass  # fall through to file storage below
+        except urllib.error.HTTPError as e:
+            body = e.read().decode("utf-8", "replace")[:300]
+            print(f"[store] Upstash load failed for key={redis_key!r}: HTTP {e.code} {body}")
+        except Exception as e:
+            print(f"[store] Upstash load failed for key={redis_key!r}: {e!r}")
+        # falls through to file storage below either way
 
     try:
         with open(_local_path(local_key)) as f:
@@ -62,8 +67,13 @@ def save(redis_key, local_key, data):
         try:
             payload = urllib.parse.quote(json.dumps(data))
             _upstash_request(f"set/{redis_key}/{payload}")
-        except Exception:
-            pass  # best-effort; local file below still gets written
+        except urllib.error.HTTPError as e:
+            # Surfaced (never the URL/token) so a real auth/format/size
+            # problem shows up in logs instead of silently no-opping.
+            body = e.read().decode("utf-8", "replace")[:300]
+            print(f"[store] Upstash save failed for key={redis_key!r}: HTTP {e.code} {body}")
+        except Exception as e:
+            print(f"[store] Upstash save failed for key={redis_key!r}: {e!r}")
 
     try:
         os.makedirs(DATA_DIR, exist_ok=True)
