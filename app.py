@@ -355,6 +355,36 @@ def api_health():
     return jsonify({"status": "ok", "odds_configured": oddsapi.is_configured()})
 
 
+@app.route("/api/debug-store")
+def api_debug_store():
+    """Temporary — remove once the Redis read path is confirmed working.
+    Reports store config/connectivity state without exposing the actual
+    URL or token values."""
+    info = {
+        "is_configured": store.is_configured(),
+        "url_host": store._UPSTASH_URL.replace("https://", "").split("/")[0]
+        if store._UPSTASH_URL
+        else None,
+        "url_len": len(store._UPSTASH_URL),
+        "token_len": len(store._UPSTASH_TOKEN),
+    }
+    try:
+        import requests
+
+        resp = requests.get(
+            f"{store._UPSTASH_URL}/get/{_SCAN_CACHE_REDIS_KEY}",
+            headers=store._HEADERS,
+            timeout=10,
+        )
+        info["get_status_code"] = resp.status_code
+        body = resp.text
+        info["get_response_len"] = len(body)
+        info["get_response_preview"] = body[:200]
+    except Exception as e:
+        info["get_exception"] = repr(e)
+    return jsonify(info)
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5007))
     app.run(host="127.0.0.1", port=port, debug=True)
