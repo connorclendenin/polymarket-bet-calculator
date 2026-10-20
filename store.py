@@ -20,12 +20,23 @@ import os
 
 import requests
 
-_UPSTASH_URL = os.environ.get("UPSTASH_REDIS_REST_URL", "").strip().rstrip("/")
-_UPSTASH_TOKEN = os.environ.get("UPSTASH_REDIS_REST_TOKEN", "").strip()
-# .strip() guards against a trailing newline/space sneaking in from a
-# copy-paste into an env var field (confirmed empirically: a bare newline
-# in the Authorization header value makes the HTTP client reject the
-# request outright before it's even sent).
+def _clean_env(value):
+    """Strips whitespace and any stray leading/trailing quote characters —
+    both confirmed empirically as copy-paste artifacts from pasting an env
+    var field straight out of a `KEY="value"`-style code snippet (Upstash's
+    own REST API console shows credentials exactly that way): a trailing
+    newline makes the HTTP client reject the Authorization header outright,
+    and a lone trailing `"` (confirmed: no matching leading quote — the
+    paste started after the `="`) baked into the URL makes it resolve to a
+    bogus hostname with a literal %22 in it instead of a connection
+    failure that would at least point at the real cause. Strips quotes
+    unconditionally (paired, single, or absent) rather than only a matched
+    pair, since the real failure was exactly the unpaired case."""
+    return value.strip().strip("\"'").strip()
+
+
+_UPSTASH_URL = _clean_env(os.environ.get("UPSTASH_REDIS_REST_URL", "")).rstrip("/")
+_UPSTASH_TOKEN = _clean_env(os.environ.get("UPSTASH_REDIS_REST_TOKEN", ""))
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 
