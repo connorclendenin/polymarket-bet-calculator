@@ -1,0 +1,50 @@
+name: Paper trading cron
+
+# Keeps the paper-trading strategies advancing even when nobody has the app
+# open (laptop closed, asleep, or off). Runs hourly, not more often: this
+# repo is private, so GitHub's free tier gives ~2000 Actions minutes/month,
+# and every run here is a genuinely cold scan (no warm in-memory cache
+# carries over between runs on a fresh container) taking ~1-2 minutes —
+# hourly keeps this comfortably inside the free allowance. Paper-trading
+# calibration doesn't need sub-hourly granularity to be meaningful; this
+# only trades off how promptly a finished game gets settled, not accuracy.
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run one scan + paper-trading cycle
+        env:
+          POLYMARKET_KEY_ID: ${{ secrets.POLYMARKET_KEY_ID }}
+          POLYMARKET_SECRET_KEY: ${{ secrets.POLYMARKET_SECRET_KEY }}
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: python paper_trade_cron.py
+
+      - name: Commit updated paper-trading state
+        run: |
+          git config user.name "paper-trading-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/paper_trades*.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Paper trading: automated cycle $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          else
+            echo "No state changes this run."
+          fi

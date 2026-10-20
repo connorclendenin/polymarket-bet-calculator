@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bet Calculator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="header-sticky">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">◆</span>
+        <span class="brand-name">Bet Calculator</span>
+      </div>
+      <div class="status-line">
+        <span id="last-updated">loading…</span>
+        <label class="live-toggle">
+          <input type="checkbox" id="live-toggle" checked>
+          Auto-refresh
+        </label>
+      </div>
+    </header>
+
+    <nav class="section-nav" id="section-nav">
+      <div class="nav-links">
+        <a href="#us-account-panel" class="nav-link" id="nav-us-account" hidden>My account</a>
+        <a href="#tracker-panel" class="nav-link" id="nav-tracker" hidden>Live tracker</a>
+        <a href="#underdog-panel" class="nav-link" id="nav-underdog" hidden>Underdogs</a>
+        <a href="#lock-panel" class="nav-link" id="nav-lock" hidden>Locks</a>
+        <a href="#prop-panel" class="nav-link" id="nav-prop" hidden>Props</a>
+        <a href="#paper-panel" class="nav-link">Paper trading</a>
+        <a href="#arb-panel" class="nav-link">Arbitrage</a>
+        {% if odds_configured %}<a href="#value-panel" class="nav-link">Value</a>{% endif %}
+        <a href="#games-panel" class="nav-link">Games</a>
+        <a href="#positions-panel" class="nav-link">Positions lookup</a>
+      </div>
+      <input type="text" id="matchup-search" class="nav-search" placeholder="Search a matchup or team…">
+    </nav>
+  </div>
+
+  <div class="disclaimer">
+    Informational only, not financial advice. Model confidence % is a statistical estimate from
+    team performance data — not a guarantee. This tool never places trades; you execute
+    everything yourself on Polymarket.
+  </div>
+
+  <main>
+    <section class="controls">
+      <div class="league-filters" id="league-filters">
+        {% for league in leagues %}
+        <label class="pill-check"><input type="checkbox" value="{{ league }}" checked> {{ league.upper() }}</label>
+        {% endfor %}
+      </div>
+      {% if not odds_configured %}
+      <div class="odds-hint">
+        Sportsbook comparison is off — set <code>ODDS_API_KEY</code> in <code>.env</code> to enable it.
+      </div>
+      {% endif %}
+    </section>
+
+    <section class="panel" id="us-account-panel" hidden>
+      <h2>My polymarket.us account <span class="hint">(read-only, your own API key)</span></h2>
+      <p class="panel-sub">Your real balances and positions, read via your own authenticated API key — never your wallet or any other credential.</p>
+      <div id="us-account-body">Loading…</div>
+    </section>
+
+    <section class="panel live-panel" id="tracker-panel" hidden>
+      <h2>Live position tracker <span class="hint">(real open positions only)</span></h2>
+      <p class="panel-sub">For any game where you hold a real open polymarket.us position, a per-play win-probability feed from ESPN's own live model — not this app's own score-only heuristic — so confidence moves with every tracked play, not just whenever the score changes between polls. Only available where ESPN publishes one (confirmed: NFL and MLB do, NHL doesn't); falls back to nothing shown here otherwise.</p>
+      <div id="tracker-list"></div>
+    </section>
+
+    <section class="panel live-panel" id="underdog-panel" hidden>
+      <h2>Smart underdog bets</h2>
+      <p class="panel-sub">Underdogs (market price under 50%) whose model confidence sits well above that price — pre-game from season stats, live from the current score. Confidence shown is the model's win probability for that underdog, not a guarantee.</p>
+      <div id="underdog-list" class="opp-list"></div>
+    </section>
+
+    <section class="panel lock-panel" id="lock-panel" hidden>
+      <h2>Locks</h2>
+      <p class="panel-sub">Favorites the model is highly confident in (80%+) that still pay a worthwhile multiplier — priced roughly $0.55-$0.90, not already bid up to a sure thing. Not a guarantee; "high confidence" isn't "certain."</p>
+      <div id="lock-list" class="opp-list"></div>
+    </section>
+
+    <section class="panel prop-panel" id="prop-panel" hidden>
+      <h2>Smart NFL prop bets <span class="hint">(NFL only)</span></h2>
+      <p class="panel-sub">Polymarket doesn't list individual player props — every NFL market beyond the game winner is a team/game-level total (game total, each team's total points). This projects each from the same season scoring data as the rest of the model (a team's typical points scored, averaged with its opponent's typical points allowed) and flags the posted line when the model's probability diverges meaningfully from the market's price. A simplified heuristic, not a trained model — treat it as a prompt to look closer, not a bet to place blind.</p>
+      <div id="prop-list" class="opp-list"></div>
+    </section>
+
+    <section class="panel paper-panel" id="paper-panel">
+      <h2>Paper trading — model accuracy test</h2>
+      <p class="panel-sub">Three independent $100 simulated bankrolls, each running a different, clearly-labeled strategy against this app's own signals (underdog/lock/prop), settled against the real game result: a baseline (current thresholds, flat $5 stakes), a high-conviction variant (stricter thresholds, same flat stake), and a Kelly-sized variant (same signals as baseline, stake scaled by edge). This exists to measure both whether the model's confidence is calibrated and, over time, which approach actually holds up — not a strategy to copy yet, not advice. No real money or orders are ever involved.</p>
+      <div id="paper-body">Loading…</div>
+    </section>
+
+    <section class="panel" id="arb-panel">
+      <h2>Arbitrage opportunities</h2>
+      <p class="panel-sub">Buy every outcome for less than the guaranteed $1 payout — risk-free before fees.</p>
+      <div id="arb-list" class="opp-list">Scanning…</div>
+    </section>
+
+    {% if odds_configured %}
+    <section class="panel" id="value-panel">
+      <h2>Value vs. sportsbooks</h2>
+      <p class="panel-sub">Polymarket priced well below the sportsbook-implied probability.</p>
+      <div id="value-list" class="opp-list"></div>
+    </section>
+    {% endif %}
+
+    <section class="panel" id="games-panel">
+      <h2>Games <span id="game-count" class="hint"></span></h2>
+      <div id="games-grid" class="games-grid"></div>
+    </section>
+
+    <section class="panel" id="positions-panel">
+      <h2>Positions &amp; P/L lookup <span class="hint">(any public polymarket.com address)</span></h2>
+      <p class="panel-sub">This looks up a public wallet address on the original crypto-native Polymarket — a different product from polymarket.us, so it won't show your own account above.</p>
+      <div class="wallet-row">
+        <input type="text" id="wallet-address" placeholder="0x a Polymarket wallet address">
+        <button id="wallet-save">Load</button>
+      </div>
+      <div id="positions-body">Enter a wallet address to view positions and P/L for it.</div>
+    </section>
+  </main>
+
+  <template id="game-card-template">
+    <article class="game-card">
+      <div class="card-top">
+        <span class="league-badge"></span>
+        <span class="status-badge"></span>
+      </div>
+      <div class="team-pct-rows"></div>
+      <div class="pct-legend"></div>
+      <div class="card-badges"></div>
+      <button class="details-toggle" type="button">Why? ▾</button>
+      <div class="details-panel" hidden></div>
+      <a class="open-link" href="#" target="_blank" rel="noopener">View on Polymarket →</a>
+    </article>
+  </template>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
