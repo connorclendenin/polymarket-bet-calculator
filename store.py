@@ -11,7 +11,6 @@ zero behavior change without the env vars set.
 import json
 import os
 import urllib.error
-import urllib.parse
 import urllib.request
 
 _UPSTASH_URL = os.environ.get("UPSTASH_REDIS_REST_URL", "").rstrip("/")
@@ -29,6 +28,22 @@ def _upstash_request(path):
         f"{_UPSTASH_URL}/{path}", headers={"Authorization": f"Bearer {_UPSTASH_TOKEN}"}
     )
     with urllib.request.urlopen(req, timeout=10) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def _upstash_set(key, value_json):
+    """SET via a POST body rather than embedding the value in the URL path
+    (what `_upstash_request` does for every other command) — confirmed
+    empirically that a large value (~450KB, this project's full cached
+    scan) blows past a line-length limit when crammed into a GET request
+    line (`LineTooLong`); the request body has no such practical limit."""
+    req = urllib.request.Request(
+        f"{_UPSTASH_URL}/set/{key}",
+        data=value_json.encode("utf-8"),
+        headers={"Authorization": f"Bearer {_UPSTASH_TOKEN}"},
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=15) as resp:
         return json.loads(resp.read().decode("utf-8"))
 
 
@@ -65,8 +80,7 @@ def save(redis_key, local_key, data):
     the GitHub Actions cron working the same way they already do)."""
     if is_configured():
         try:
-            payload = urllib.parse.quote(json.dumps(data))
-            _upstash_request(f"set/{redis_key}/{payload}")
+            _upstash_set(redis_key, json.dumps(data))
         except urllib.error.HTTPError as e:
             # Surfaced (never the URL/token) so a real auth/format/size
             # problem shows up in logs instead of silently no-opping.
