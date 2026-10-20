@@ -6,49 +6,34 @@ of local disk. Same pattern as the sibling `portfolio-dashboard` /
 instead of being copy-pasted per call site. Falls back to a local JSON file
 when Upstash isn't configured, so local dev behaves exactly as before —
 zero behavior change without the env vars set.
+
+Uses `requests` (already a dependency, already proven reliable on this
+project's own Vercel deployment for every other outbound call) rather than
+the stdlib `urllib.request` — that was the first implementation here, and
+it failed in production with `URLError(OSError(16, 'Device or resource
+busy'))` on every single request, which `requests`/urllib3's different
+connection handling doesn't hit.
 """
 
 import json
 import os
-import urllib.error
-import urllib.request
+
+import requests
 
 _UPSTASH_URL = os.environ.get("UPSTASH_REDIS_REST_URL", "").strip().rstrip("/")
 _UPSTASH_TOKEN = os.environ.get("UPSTASH_REDIS_REST_TOKEN", "").strip()
 # .strip() guards against a trailing newline/space sneaking in from a
 # copy-paste into an env var field (confirmed empirically: a bare newline
-# in the Authorization header value makes Python's http.client raise
-# ValueError("Invalid header value ...") for every single request).
+# in the Authorization header value makes the HTTP client reject the
+# request outright before it's even sent).
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+
+_HEADERS = {"Authorization": f"Bearer {_UPSTASH_TOKEN}"}
 
 
 def is_configured():
     return bool(_UPSTASH_URL and _UPSTASH_TOKEN)
-
-
-def _upstash_request(path):
-    req = urllib.request.Request(
-        f"{_UPSTASH_URL}/{path}", headers={"Authorization": f"Bearer {_UPSTASH_TOKEN}"}
-    )
-    with urllib.request.urlopen(req, timeout=10) as resp:
-        return json.loads(resp.read().decode("utf-8"))
-
-
-def _upstash_set(key, value_json):
-    """SET via a POST body rather than embedding the value in the URL path
-    (what `_upstash_request` does for every other command) — confirmed
-    empirically that a large value (~450KB, this project's full cached
-    scan) blows past a line-length limit when crammed into a GET request
-    line (`LineTooLong`); the request body has no such practical limit."""
-    req = urllib.request.Request(
-        f"{_UPSTASH_URL}/set/{key}",
-        data=value_json.encode("utf-8"),
-        headers={"Authorization": f"Bearer {_UPSTASH_TOKEN}"},
-        method="POST",
-    )
-    with urllib.request.urlopen(req, timeout=15) as resp:
-        return json.loads(resp.read().decode("utf-8"))
 
 
 def _local_path(local_key):
@@ -60,13 +45,11 @@ def load(redis_key, local_key, default):
     file named `data/<local_key>.json`."""
     if is_configured():
         try:
-            result = _upstash_request(f"get/{redis_key}")
-            raw = result.get("result")
+            resp = requests.get(f"{_UPSTASH_URL}/get/{redis_key}", headers=_HEADERS, timeout=10)
+            resp.raise_for_status()
+            raw = resp.json().get("result")
             if raw:
                 return json.loads(raw)
-        except urllib.error.HTTPError as e:
-            body = e.read().decode("utf-8", "replace")[:300]
-            print(f"[store] Upstash load failed for key={redis_key!r}: HTTP {e.code} {body}")
         except Exception as e:
             print(f"[store] Upstash load failed for key={redis_key!r}: {e!r}")
         # falls through to file storage below either way
@@ -84,13 +67,20 @@ def save(redis_key, local_key, data):
     the GitHub Actions cron working the same way they already do)."""
     if is_configured():
         try:
-            _upstash_set(redis_key, json.dumps(data))
-        except urllib.error.HTTPError as e:
+            # POST with the value in the body rather than a GET with it
+            # embedded in the URL — confirmed empirically that a large
+            # value (~450KB, this project's full cached scan) blows past a
+            # request-line length limit when crammed into a URL.
+            resp = requests.post(
+                f"{_UPSTASH_URL}/set/{redis_key}",
+                data=json.dumps(data).encode("utf-8"),
+                headers=_HEADERS,
+                timeout=15,
+            )
+            resp.raise_for_status()
+        except Exception as e:
             # Surfaced (never the URL/token) so a real auth/format/size
             # problem shows up in logs instead of silently no-opping.
-            body = e.read().decode("utf-8", "replace")[:300]
-            print(f"[store] Upstash save failed for key={redis_key!r}: HTTP {e.code} {body}")
-        except Exception as e:
             print(f"[store] Upstash save failed for key={redis_key!r}: {e!r}")
 
     try:
