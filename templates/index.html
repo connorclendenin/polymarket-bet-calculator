@@ -52,6 +52,7 @@
         <label class="pill-check"><input type="checkbox" value="{{ league }}" checked> {{ league.upper() }}</label>
         {% endfor %}
       </div>
+      <label class="pill-check live-filter"><input type="checkbox" id="live-only-filter"> Live only</label>
       {% if not odds_configured %}
       <div class="odds-hint">
         Sportsbook comparison is off — set <code>ODDS_API_KEY</code> in <code>.env</code> to enable it.

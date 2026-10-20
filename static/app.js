@@ -342,16 +342,23 @@ function renderFilteredGames() {
   const template = document.getElementById("game-card-template");
   const searchInput = document.getElementById("matchup-search");
   const query = searchInput ? searchInput.value.trim() : "";
+  const liveOnlyEl = document.getElementById("live-only-filter");
+  const liveOnly = liveOnlyEl ? liveOnlyEl.checked : false;
 
-  const filtered = latestGames.filter((row) => matchesSearch(row, query));
+  const filtered = latestGames.filter(
+    (row) => matchesSearch(row, query) && (!liveOnly || row.status === "live")
+  );
 
-  document.getElementById("game-count").textContent = query
+  const filtersActive = query || liveOnly;
+  document.getElementById("game-count").textContent = filtersActive
     ? `(${filtered.length} of ${latestGames.length})`
     : `(${latestGames.length})`;
 
   grid.innerHTML = "";
-  if (query && !filtered.length) {
-    grid.innerHTML = `<div class="empty-state">No games matching "${query}".</div>`;
+  if (filtersActive && !filtered.length) {
+    const reason = query ? `matching "${query}"` : "";
+    const liveReason = liveOnly ? (reason ? " that are live right now" : "live right now") : "";
+    grid.innerHTML = `<div class="empty-state">No games ${reason}${liveReason}.</div>`;
     return;
   }
   filtered.forEach((row) => grid.appendChild(renderGameCard(row, template)));
@@ -887,6 +894,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // jump to the results so typing from the header isn't searching blind
     document.getElementById("games-panel").scrollIntoView({ behavior: "smooth", block: "start" });
   });
+
+  document.getElementById("live-only-filter").addEventListener("change", renderFilteredGames);
 
   const liveToggle = document.getElementById("live-toggle");
   liveToggle.addEventListener("change", () => {
