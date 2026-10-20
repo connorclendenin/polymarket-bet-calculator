@@ -262,6 +262,7 @@ main {
 
 .opp-card .matchup { font-weight: 800; font-size: 13px; letter-spacing: -0.005em; }
 .opp-card .sub { font-size: 11.5px; color: var(--text-dim); margin-top: 2px; }
+.opp-card .sub.muted { color: var(--text-faint-solid); }
 .opp-card .metric { text-align: right; font-weight: 800; font-size: 17px; white-space: nowrap; letter-spacing: -0.01em; }
 .opp-card .metric.good { color: var(--green); }
 .opp-card .metric.warn { color: var(--amber); }

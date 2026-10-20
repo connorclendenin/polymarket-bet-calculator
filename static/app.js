@@ -153,8 +153,7 @@ function buildTrackerSpark(timeline, matchedSide) {
     </svg>`;
 }
 
-function trackerCard(r) {
-  const t = r.position_tracker;
+function trackerCardPerPlay(r, t) {
   const timeline = t.timeline;
   const last = timeline[timeline.length - 1];
   const sideLabel = t.matched_side === "home" ? t.home_team : t.matched_side === "away" ? t.away_team : null;
@@ -190,6 +189,27 @@ function trackerCard(r) {
         <div class="confidence-label">${sideLabel ? "your side" : "home team"} win prob.</div>
       </div>
     </div>`;
+}
+
+function trackerCardScoreBased(r, t) {
+  const sideLabel = t.matched_side === "home" ? t.home_team : t.matched_side === "away" ? t.away_team : null;
+  return `
+    <div class="opp-card tracker-card">
+      <div>
+        <div class="matchup">${r.title} <span class="basis-tag live">LIVE</span></div>
+        <div class="sub">${r.league.toUpperCase()} · ${r.live_score ? `${r.live_score.away}-${r.live_score.home} (${t.live_detail || r.live_score.detail})` : ""}${sideLabel ? ` · tracking ${sideLabel}` : " · couldn't confirm which side your position is on — showing home team's win probability instead"}</div>
+        <div class="sub muted">No per-play feed for ${r.league.toUpperCase()} — this updates with the score, same as the rest of the app, not with every play.</div>
+      </div>
+      <div class="confidence-block">
+        <div class="confidence-pct">${pct(t.current_your_pct)}</div>
+        <div class="confidence-label">${sideLabel ? "your side" : "home team"} win prob.</div>
+      </div>
+    </div>`;
+}
+
+function trackerCard(r) {
+  const t = r.position_tracker;
+  return t.basis === "per_play" ? trackerCardPerPlay(r, t) : trackerCardScoreBased(r, t);
 }
 
 function propCard(r) {

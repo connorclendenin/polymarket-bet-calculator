@@ -298,22 +298,20 @@ def attach_your_position(row, game, us_positions):
 
 def attach_position_tracker(row):
     """For a live game where attach_your_position already found a real held
-    position, attaches a per-play confidence feed via
-    stats.fetch_live_play_feed — ESPN's own real win-probability series, so
-    the number genuinely moves with every tracked play instead of only
-    when the score itself changes between polls. Requires row['live_score']
-    (set by attach_live_estimate) for the ESPN event id; does nothing if
-    that's missing, the game isn't live, no position is held, or this
-    league/game doesn't expose ESPN's per-play series (confirmed: NHL
-    never does — see fetch_live_play_feed)."""
+    position, attaches a live confidence reading for that position so it's
+    never just silent. Two tiers:
+    - "per_play": ESPN's own real per-play win-probability series (via
+      stats.fetch_live_play_feed) when this league/game exposes one
+      (confirmed: NFL and MLB do) — the number moves with every tracked
+      play, not just when the score itself changes between polls.
+    - "score_based": falls back to the same score/period-based live
+      estimate already computed for every live game by attach_live_estimate
+      (covers NBA/NHL too, the other two ESPN-mapped leagues) — coarser
+      (only updates when polled, same as the rest of the app), but still a
+      real number tied to your actual held side instead of nothing. CFB/CBB
+      aren't ESPN-stat-mapped at all in this app, so still show nothing.
+    """
     if row.get("status") != "live" or not row.get("your_position"):
-        return
-    espn_event_id = (row.get("live_score") or {}).get("espn_event_id")
-    if not espn_event_id:
-        return
-
-    feed = stats.fetch_live_play_feed(row["league"], espn_event_id)
-    if not feed:
         return
 
     home_out = next((o for o in row["outcomes"] if o.get("home_away") == "home"), None)
@@ -329,31 +327,57 @@ def attach_position_tracker(row):
     position_outcome = row["your_position"].get("outcome") or ""
     tracks_home = matcher._team_in_name(home_out["name"], position_outcome)
     tracks_away = matcher._team_in_name(away_out["name"], position_outcome)
+    matched_side = "home" if tracks_home else "away" if tracks_away else None
 
-    timeline = []
-    for p in feed:
-        home_pct = p["home_win_pct"]
-        your_pct = home_pct if tracks_home else round(1 - home_pct, 4) if tracks_away else None
-        timeline.append(
-            {
-                "text": p["text"],
-                "period": p["period"],
-                "clock": p.get("clock"),
-                "scoring_play": p["scoring_play"],
-                "home_win_pct": home_pct,
-                "your_win_pct": your_pct,
-            }
-        )
+    espn_event_id = (row.get("live_score") or {}).get("espn_event_id")
+    feed = stats.fetch_live_play_feed(row["league"], espn_event_id) if espn_event_id else []
+
+    if feed:
+        timeline = []
+        for p in feed:
+            home_pct = p["home_win_pct"]
+            your_pct = (
+                home_pct if tracks_home else round(1 - home_pct, 4) if tracks_away else None
+            )
+            timeline.append(
+                {
+                    "text": p["text"],
+                    "period": p["period"],
+                    "clock": p.get("clock"),
+                    "scoring_play": p["scoring_play"],
+                    "home_win_pct": home_pct,
+                    "your_win_pct": your_pct,
+                }
+            )
+        row["position_tracker"] = {
+            "basis": "per_play",
+            # None when the position's own outcome string couldn't be
+            # matched to either team name — the "which side is mine" gap
+            # already flagged as unverified on attach_your_position. The
+            # feed and home-side probability still show in that case; only
+            # `your_win_pct` is blank.
+            "matched_side": matched_side,
+            "home_team": home_out["name"],
+            "away_team": away_out["name"],
+            "timeline": timeline,
+        }
+        return
+
+    your_pct = None
+    if tracks_home and "live_prob" in home_out:
+        your_pct = home_out["live_prob"]
+    elif tracks_away and "live_prob" in away_out:
+        your_pct = away_out["live_prob"]
+    if your_pct is None:
+        return  # no live model for this league (e.g. CFB/CBB) — show nothing rather than guess
 
     row["position_tracker"] = {
-        # None when the position's own outcome string couldn't be matched to
-        # either team name — the "which side is mine" gap already flagged as
-        # unverified on attach_your_position. The feed and home-side
-        # probability still show in that case; only `your_win_pct` is blank.
-        "matched_side": "home" if tracks_home else "away" if tracks_away else None,
+        "basis": "score_based",
+        "matched_side": matched_side,
         "home_team": home_out["name"],
         "away_team": away_out["name"],
-        "timeline": timeline,
+        "current_your_pct": round(your_pct, 4),
+        "live_detail": (row.get("live_score") or {}).get("detail"),
     }
 
 
