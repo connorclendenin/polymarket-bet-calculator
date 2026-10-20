@@ -35,6 +35,12 @@ jobs:
           POLYMARKET_KEY_ID: ${{ secrets.POLYMARKET_KEY_ID }}
           POLYMARKET_SECRET_KEY: ${{ secrets.POLYMARKET_SECRET_KEY }}
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          # Optional — only needed once the dashboard is deployed (see
+          # README "Deploy"). When set, this run also writes the scan +
+          # paper-trading state to Redis, which is what the deployed
+          # dashboard reads instead of recomputing live.
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
         run: python paper_trade_cron.py
 
       - name: Commit updated paper-trading state

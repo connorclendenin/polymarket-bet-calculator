@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 24.8677,
+  "balance": 26.6581,
   "bets": [
     {
       "id": "b78837abae",
@@ -269,10 +269,10 @@
       "stake": 1.5218,
       "shares": 1.7904,
       "placed_at": "2026-10-20T02:01:37.624797+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-10-20T04:34:28.094271+00:00",
+      "payout": 1.7904,
+      "pnl": 0.2686,
       "polymarket_url": "https://polymarket.com/event/mlb-cle-tb-2026-10-19"
     }
   ]

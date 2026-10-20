@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timezone
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request
@@ -11,12 +12,34 @@ import oddsapi
 import paper_trading
 import performance
 import polymarket
+import store
 import us_api
 
 app = Flask(__name__)
 
 DEFAULT_MIN_ARB_EDGE = 0.01  # 1 cent of guaranteed profit per $1 of combined outcome cost
 DEFAULT_MIN_VALUE_EDGE = 0.04  # 4 points of probability gap vs. sportsbook consensus
+
+# The full scan is expensive (hundreds of games across Gamma/CLOB/ESPN, ~50s
+# cold) — fine for local dev's 30s poll against a warm in-process cache, but
+# would time out a Vercel serverless function recomputing it on every page
+# load with a cold cache every time. When deployed (store.is_configured()),
+# the scheduled job (paper_trade_cron.py) does this expensive work on its
+# own schedule and caches the result here; /api/scan and /api/paper then
+# just read that cache instead of recomputing — see cache_scan_snapshot and
+# its read side in api_scan/api_paper below.
+_SCAN_CACHE_REDIS_KEY = "polymarket-bet-calculator:latest_scan"
+_SCAN_CACHE_LOCAL_KEY = "latest_scan"
+
+
+def cache_scan_snapshot(rows):
+    """Called by paper_trade_cron.py after a full scan — not used by the
+    live app itself, which only ever READS this (see api_scan)."""
+    store.save(
+        _SCAN_CACHE_REDIS_KEY,
+        _SCAN_CACHE_LOCAL_KEY,
+        {"games": rows, "computed_at": datetime.now(timezone.utc).isoformat()},
+    )
 
 
 def _build_game_row(game, books):
@@ -199,40 +222,63 @@ def _ranked_signal_lists(rows):
 def api_scan():
     leagues_param = request.args.get("leagues")
     leagues = leagues_param.split(",") if leagues_param else None
+    scan_computed_at = None
 
-    try:
-        rows = _run_scan(leagues)
-    except Exception as exc:
-        # Per-league/per-chunk failures are already absorbed inside
-        # _run_scan; this is a last-resort net for anything unexpected so
-        # the frontend gets a clean error to retry on instead of a 500 and
-        # a blank screen.
-        return jsonify({"error": f"scan failed: {exc}", "games": []}), 502
+    if store.is_configured():
+        # Deployed: never recompute live (would time out) — read the
+        # scheduled job's last cached scan instead.
+        cached = store.load(_SCAN_CACHE_REDIS_KEY, _SCAN_CACHE_LOCAL_KEY, None)
+        if cached is None:
+            return jsonify(
+                {"error": "no scan cached yet — the scheduled job hasn't run", "games": []}
+            ), 503
+        rows = cached["games"]
+        scan_computed_at = cached.get("computed_at")
+        if leagues:
+            rows = [r for r in rows if r["league"] in leagues]
+    else:
+        try:
+            rows = _run_scan(leagues)
+        except Exception as exc:
+            # Per-league/per-chunk failures are already absorbed inside
+            # _run_scan; this is a last-resort net for anything unexpected
+            # so the frontend gets a clean error to retry on instead of a
+            # 500 and a blank screen.
+            return jsonify({"error": f"scan failed: {exc}", "games": []}), 502
 
     arb_rows, value_rows, underdog_rows, lock_rows, prop_rows = _ranked_signal_lists(rows)
 
-    return jsonify(
-        {
-            "games": rows,
-            "arbitrage_opportunities": arb_rows,
-            "value_opportunities": value_rows,
-            "underdog_opportunities": underdog_rows,
-            "lock_opportunities": lock_rows,
-            "prop_opportunities": prop_rows,
-            "odds_configured": oddsapi.is_configured(),
-            "game_count": len(rows),
-        }
-    )
+    response = {
+        "games": rows,
+        "arbitrage_opportunities": arb_rows,
+        "value_opportunities": value_rows,
+        "underdog_opportunities": underdog_rows,
+        "lock_opportunities": lock_rows,
+        "prop_opportunities": prop_rows,
+        "odds_configured": oddsapi.is_configured(),
+        "game_count": len(rows),
+    }
+    if scan_computed_at:
+        # Deployed data is only as fresh as the scheduled job's last run
+        # (hourly) — the frontend shows this instead of "just now" so it
+        # doesn't look more live than it actually is.
+        response["scan_computed_at"] = scan_computed_at
+    return jsonify(response)
 
 
 @app.route("/api/paper")
 def api_paper():
-    try:
-        rows = _run_scan(None)  # always all leagues, regardless of UI filter
-        _, _, underdog_rows, lock_rows, prop_rows = _ranked_signal_lists(rows)
-        paper_trading.run_all_strategies(underdog_rows, lock_rows, prop_rows)
-    except Exception:
-        pass  # placing new bets is best-effort; still report current state below
+    if not store.is_configured():
+        # Local dev: place/settle live on every poll, same as always.
+        try:
+            rows = _run_scan(None)  # always all leagues, regardless of UI filter
+            _, _, underdog_rows, lock_rows, prop_rows = _ranked_signal_lists(rows)
+            paper_trading.run_all_strategies(underdog_rows, lock_rows, prop_rows)
+        except Exception:
+            pass  # placing new bets is best-effort; still report current state below
+    # Deployed: the scheduled job already placed/settled bets on its own
+    # schedule — just report current state, which is fast (reads Redis, no
+    # live scan) and safely within a serverless function's time limit.
 
     summary = paper_trading.get_summary("baseline")
     summary["strategy_comparison"] = paper_trading.get_strategy_comparison()

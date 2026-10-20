@@ -16,6 +16,9 @@ import paper_trading
 
 def main():
     rows = app_module._run_scan(None)  # all leagues, same as the live app's paper trader
+    app_module.cache_scan_snapshot(rows)  # lets a deployed /api/scan read this instead of
+    # recomputing live (would time out a serverless function) — see app.py's api_scan.
+
     _, _, underdog_rows, lock_rows, prop_rows = app_module._ranked_signal_lists(rows)
     placed = paper_trading.run_all_strategies(underdog_rows, lock_rows, prop_rows)
 

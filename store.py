@@ -1,0 +1,73 @@
+"""Durable key/value storage for hosts with an ephemeral filesystem (Vercel
+serverless): if UPSTASH_REDIS_REST_URL / _TOKEN are set, reads/writes go to
+Upstash Redis (free tier, survives restarts/redeploys/cold starts) instead
+of local disk. Same pattern as the sibling `portfolio-dashboard` /
+`financial-growth-analyzer` projects, generalized into one shared helper
+instead of being copy-pasted per call site. Falls back to a local JSON file
+when Upstash isn't configured, so local dev behaves exactly as before —
+zero behavior change without the env vars set.
+"""
+
+import json
+import os
+import urllib.parse
+import urllib.request
+
+_UPSTASH_URL = os.environ.get("UPSTASH_REDIS_REST_URL", "").rstrip("/")
+_UPSTASH_TOKEN = os.environ.get("UPSTASH_REDIS_REST_TOKEN", "")
+
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+
+
+def is_configured():
+    return bool(_UPSTASH_URL and _UPSTASH_TOKEN)
+
+
+def _upstash_request(path):
+    req = urllib.request.Request(
+        f"{_UPSTASH_URL}/{path}", headers={"Authorization": f"Bearer {_UPSTASH_TOKEN}"}
+    )
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def _local_path(local_key):
+    return os.path.join(DATA_DIR, f"{local_key}.json")
+
+
+def load(redis_key, local_key, default):
+    """Reads a JSON value, preferring Redis when configured, else a local
+    file named `data/<local_key>.json`."""
+    if is_configured():
+        try:
+            result = _upstash_request(f"get/{redis_key}")
+            raw = result.get("result")
+            if raw:
+                return json.loads(raw)
+        except Exception:
+            pass  # fall through to file storage below
+
+    try:
+        with open(_local_path(local_key)) as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return default
+
+
+def save(redis_key, local_key, data):
+    """Writes a JSON value to Redis when configured; always also writes the
+    local file (cheap, and keeps local dev + the git-committed state from
+    the GitHub Actions cron working the same way they already do)."""
+    if is_configured():
+        try:
+            payload = urllib.parse.quote(json.dumps(data))
+            _upstash_request(f"set/{redis_key}/{payload}")
+        except Exception:
+            pass  # best-effort; local file below still gets written
+
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        with open(_local_path(local_key), "w") as f:
+            json.dump(data, f, indent=2)
+    except OSError:
+        pass

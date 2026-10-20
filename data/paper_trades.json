@@ -110,10 +110,10 @@
       "stake": 5.0,
       "shares": 11.9048,
       "placed_at": "2026-10-18T03:04:54.994796+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-10-20T04:34:21.394824+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nhl-sj-tor-2026-10-19"
     },
     {
@@ -186,10 +186,10 @@
       "stake": 5.0,
       "shares": 10.8696,
       "placed_at": "2026-10-18T03:04:54.994840+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-10-20T04:34:21.971516+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/mlb-cle-tb-2026-10-19"
     },
     {

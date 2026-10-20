@@ -14,14 +14,13 @@ one sitting. STRATEGIES below are intentionally few and clearly
 differentiated (selectivity vs. staking), not a tuned grid search.
 """
 
-import json
-import os
 import uuid
 from collections import Counter
 from datetime import datetime, timezone
 
 import confidence
 import polymarket
+import store
 
 STARTING_BALANCE = 100.0
 FLAT_STAKE = 5.0  # same stake every bet, so calibration isn't confounded by sizing
@@ -34,10 +33,6 @@ MIN_BALANCE_TO_BET = 1.0
 # or NFL prop bets — get a turn. Existing bets already placed before this
 # cap existed aren't touched; it only gates new placements going forward.
 MAX_PENDING_PER_LEAGUE = 4
-
-DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
-STATE_PATH = os.path.join(DATA_DIR, "paper_trades.json")  # "baseline" strategy's file — the
-# original path, untouched, so its existing history keeps working unmigrated.
 
 CONFIDENCE_BUCKETS = [(0.5, 0.6), (0.6, 0.7), (0.7, 0.8), (0.8, 0.9), (0.9, 1.01)]
 
@@ -94,27 +89,22 @@ def _default_state():
     return {"starting_balance": STARTING_BALANCE, "balance": STARTING_BALANCE, "bets": []}
 
 
-def _state_path(strategy_id):
-    if strategy_id == "baseline":
-        return STATE_PATH
-    return os.path.join(DATA_DIR, f"paper_trades_{strategy_id}.json")
+def _state_keys(strategy_id):
+    """(redis_key, local_key) for one strategy's state — "baseline" keeps
+    the original local filename (`paper_trades.json`, no `.json` suffix
+    duplicated by store.py) so its existing history isn't orphaned."""
+    local_key = "paper_trades" if strategy_id == "baseline" else f"paper_trades_{strategy_id}"
+    return f"polymarket-bet-calculator:paper_trades:{strategy_id}", local_key
 
 
 def _load_state(strategy_id="baseline"):
-    path = _state_path(strategy_id)
-    if not os.path.exists(path):
-        return _default_state()
-    try:
-        with open(path) as f:
-            return json.load(f)
-    except (json.JSONDecodeError, OSError):
-        return _default_state()
+    redis_key, local_key = _state_keys(strategy_id)
+    return store.load(redis_key, local_key, _default_state())
 
 
 def _save_state(state, strategy_id="baseline"):
-    os.makedirs(DATA_DIR, exist_ok=True)
-    with open(_state_path(strategy_id), "w") as f:
-        json.dump(state, f, indent=2)
+    redis_key, local_key = _state_keys(strategy_id)
+    store.save(redis_key, local_key, state)
 
 
 def _already_bet(state, event_id, outcome):

@@ -526,6 +526,12 @@ async function refreshScan() {
   try {
     const resp = await fetch(`/api/scan${params}`);
     const data = await resp.json();
+    if (data.error) {
+      document.getElementById("last-updated").textContent = data.error;
+      await refreshPaperTrading();
+      refreshUsAccount();
+      return;
+    }
 
     renderOppList("arb-list", data.arbitrage_opportunities || [], arbCard);
     if (data.odds_configured) renderOppList("value-list", data.value_opportunities || [], valueCard);
@@ -549,7 +555,9 @@ async function refreshScan() {
     latestGames = data.games || [];
     renderFilteredGames();
 
-    document.getElementById("last-updated").textContent = `updated ${new Date().toLocaleTimeString()}`;
+    document.getElementById("last-updated").textContent = data.scan_computed_at
+      ? `data as of ${fmtTime(data.scan_computed_at)} (updated hourly)`
+      : `updated ${new Date().toLocaleTimeString()}`;
   } catch (err) {
     document.getElementById("last-updated").textContent = "update failed, retrying…";
   }

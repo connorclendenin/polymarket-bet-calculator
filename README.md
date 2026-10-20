@@ -158,6 +158,49 @@ lives in `data/paper_trades.json` (baseline) and
 `data/paper_trades_<strategy>.json` (the others); delete one to reset that
 strategy's bankroll back to $100.
 
+## Deploy so you can view it from anywhere
+
+Not deployed yet by default — this runs the real `.us` API scan which is
+too expensive (hundreds of games, ~50s cold) to recompute on every page
+load on a serverless host, so deploying isn't just "point Vercel at it"
+like the sibling apps. The architecture: the GitHub Actions cron
+(`.github/workflows/paper-trading-cron.yml`, already running hourly — see
+above) does the expensive scan once per hour and writes the result plus
+paper-trading state to Upstash Redis; the deployed dashboard only ever
+*reads* that cache (fast, well inside a serverless function's time limit)
+rather than recomputing it. **This means the deployed dashboard is only as
+fresh as the last hourly cron run** — not live/second-by-second like
+running it locally. The "Live tracker" and "Smart" sections will feel
+noticeably less real-time once deployed; that's the actual tradeoff of
+making this reachable without your computer on, not a bug.
+
+To set it up:
+1. Add `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` as secrets on
+   this GitHub repo (Settings → Secrets and variables → Actions) — reusing
+   the same free Upstash database as `portfolio-dashboard`/
+   `financial-growth-analyzer` is fine, this project namespaces its own
+   keys under `polymarket-bet-calculator:`. The next hourly cron run (or a
+   manual "Run workflow" from the Actions tab) starts populating the cache.
+2. Import this GitHub repo into Vercel (auto-detects `vercel.json`, no
+   config needed) — same `altos` team as the other apps keeps billing/auth
+   in one place, but any account works.
+3. Add the same two Upstash env vars to the Vercel project (Settings →
+   Environment Variables). `POLYMARKET_KEY_ID`/`POLYMARKET_SECRET_KEY` are
+   only needed there too if you want the "My account" panel to work on the
+   deployed version — paper trading itself never needs them.
+4. **No password gate is configured** — the deployment URL itself is what
+   keeps this private, so don't share it. It shows your real balance and
+   positions (read-only; this app never places real orders either way).
+   By default a new Vercel project under a team enables "Require Log In"
+   under Settings → Deployment Protection, which would actually block
+   anyone without a login to that Vercel team, including your own phone —
+   turn that **off** to get the plain unlisted-URL behavior described here
+   (same toggle noted in `portfolio-dashboard`'s README).
+
+If the Upstash env vars aren't set, both the local app and
+`paper_trade_cron.py` fall back to local `data/*.json` files exactly as
+before — nothing about local-only usage changes.
+
 ## Architecture
 
 - `polymarket.py` — Gamma API for game schedule/metadata, CLOB `/books`
@@ -172,9 +215,14 @@ strategy's bankroll back to $100.
   and the odds-API data (separate from `stats.py`'s own ESPN team matching).
 - `performance.py` — reconstructs the realized-P/L time series from a
   wallet's Polymarket activity feed (trades, redemptions, rebates).
-- `paper_trading.py` — the $100 simulated bankroll: places/settles/reports
-  on the underdog and lock signals. `polymarket.fetch_event_resolution`
-  reads the real winner once Polymarket closes a market.
+- `paper_trading.py` — three independent simulated bankrolls (`STRATEGIES`),
+  each placing/settling/reporting on the underdog/lock/prop signals under
+  its own rules. `polymarket.fetch_event_resolution`/`fetch_prop_resolution`
+  read the real winner once Polymarket closes a market.
+- `store.py` — Redis-or-local-file persistence, shared by `paper_trading.py`
+  (bankroll state) and `app.py` (cached scan results) — see "Deploy" above.
+- `paper_trade_cron.py` — standalone entrypoint (no Flask) for the scheduled
+  job: one scan + paper-trading cycle, no HTTP request involved.
 - `app.py` — Flask routes (`/api/scan`, `/api/positions`, `/api/paper`) +
   dashboard.
 
