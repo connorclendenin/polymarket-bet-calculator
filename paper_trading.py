@@ -41,6 +41,23 @@ CONFIDENCE_BUCKETS = [(0.5, 0.6), (0.6, 0.7), (0.7, 0.8), (0.8, 0.9), (0.9, 1.01
 # below this count nothing is ever paused, however it's done so far.
 MIN_SEGMENT_SAMPLES = 10
 
+# "Odds swing" — a genuinely different strategy from the four above: not
+# hold-to-resolution at all, but buy a deep longshot cheap and sell it back
+# the moment the market re-prices it higher (classic momentum/mean-reversion
+# trading), riding to the real game resolution only if that never happens.
+# Connor's own explicit ask, including the exact bound: try it 5 times total
+# and stop — not an ongoing strategy like the other four, a one-shot trial.
+ODDS_SWING_STRATEGY_ID = "odds_swing"
+ODDS_SWING_ENTRY_MIN = 0.03  # "buy low" — deep longshots only, 3-4 cents
+ODDS_SWING_ENTRY_MAX = 0.04
+ODDS_SWING_SELL_MULTIPLE = 2.0  # "sell high" — exits once the price has at
+# least doubled from entry (e.g. 3c -> 6c+). Hand-picked, not fit to data:
+# meaningful enough to not trigger on every tiny wiggle, low enough to
+# actually be reachable within 5 trials on a real swing (momentum/an early
+# score in a live game is exactly the kind of move that can do this).
+ODDS_SWING_MAX_TRIALS = 5  # total trades ever, win or lose — once reached,
+# this strategy stops placing new bets permanently (it does NOT reset).
+
 
 def _kelly_stake(state, signal):
     """Quarter-Kelly, sized off THIS strategy's own paper balance — reuses
@@ -271,6 +288,108 @@ def _run_strategy(strategy_id, cfg, underdog_rows, lock_rows, prop_rows):
     return placed
 
 
+def _odds_swing_candidates(rows):
+    """Any moneyline outcome currently priced in the deep-longshot entry
+    band — deliberately NOT edge-based, no model involved at all, unlike
+    every other signal in this app. This is a pure price-action play: the
+    model's opinion doesn't matter, only where the market itself has priced
+    a team right now. Scoped to moneyline only (row['outcomes'], the two
+    game-winner sides) — doesn't touch prop/total markets."""
+    candidates = []
+    for row in rows:
+        for outcome in row.get("outcomes", []):
+            price = outcome.get("best_ask")
+            token_id = outcome.get("token_id")
+            if price is None or token_id is None:
+                continue
+            if ODDS_SWING_ENTRY_MIN <= price <= ODDS_SWING_ENTRY_MAX:
+                candidates.append(
+                    {
+                        "event_id": row["event_id"],
+                        "league": row["league"],
+                        "title": row["title"],
+                        "outcome": outcome["name"],
+                        "token_id": token_id,
+                        "price": price,
+                        "polymarket_url": row.get("polymarket_url"),
+                    }
+                )
+    return candidates
+
+
+def run_odds_swing_strategy(rows):
+    """Buy-low-sell-high, bounded to ODDS_SWING_MAX_TRIALS total trades ever
+    (Connor's explicit ask: try it 5 times, see if it works, stop either
+    way). Settles pending bets first — each one either sells immediately
+    once the live order book shows its sell target hit, or (if not) rides
+    along to the real game resolution exactly like every other bet in this
+    app — then places new entries, capped by the trial limit, not by
+    balance alone (so it can't quietly use up its 5 tries faster than
+    intended just because the bankroll allows more)."""
+    state = _load_state(ODDS_SWING_STRATEGY_ID)
+    changed = False
+
+    pending = [b for b in state["bets"] if b["status"] == "pending"]
+    if pending:
+        token_ids = [b["token_id"] for b in pending if b.get("token_id")]
+        try:
+            books = polymarket.fetch_books(token_ids) if token_ids else {}
+        except Exception:
+            books = {}
+        for bet in pending:
+            book = books.get(bet.get("token_id")) or {}
+            current_bid = book.get("best_bid")
+            if current_bid is not None and current_bid >= bet["price"] * ODDS_SWING_SELL_MULTIPLE:
+                payout = round(bet["shares"] * current_bid, 4)
+                bet["status"] = "sold"
+                bet["settled_at"] = datetime.now(timezone.utc).isoformat()
+                bet["payout"] = payout
+                bet["pnl"] = round(payout - bet["stake"], 4)
+                bet["exit_price"] = current_bid
+                state["balance"] = round(state["balance"] + payout, 4)
+                changed = True
+                continue
+            # Sell target not hit yet — did the real game resolve first?
+            try:
+                winner = polymarket.fetch_event_resolution(bet["event_id"])
+            except Exception:
+                continue
+            if winner is None:
+                continue
+            won = winner == bet["settlement_key"]
+            payout = round(bet["shares"], 4) if won else 0.0
+            bet["status"] = "won" if won else "lost"
+            bet["settled_at"] = datetime.now(timezone.utc).isoformat()
+            bet["payout"] = payout
+            bet["pnl"] = round(payout - bet["stake"], 4)
+            state["balance"] = round(state["balance"] + payout, 4)
+            changed = True
+
+    placed = []
+    if len(state["bets"]) < ODDS_SWING_MAX_TRIALS and state["balance"] >= MIN_BALANCE_TO_BET:
+        for candidate in _odds_swing_candidates(rows):
+            if len(state["bets"]) >= ODDS_SWING_MAX_TRIALS:
+                break
+            if _already_bet(state, candidate["event_id"], candidate["outcome"]):
+                continue
+            signal = {
+                "outcome": candidate["outcome"],
+                "settlement_key": candidate["outcome"],
+                "confidence": candidate["price"],  # no model here — this IS the market's own number
+                "market_price": candidate["price"],
+                "basis": "odds_swing",
+                "token_id": candidate["token_id"],
+            }
+            bet = _place_one(state, candidate, signal, "odds_swing", FLAT_STAKE)
+            if bet:
+                placed.append(bet)
+                changed = True
+
+    if changed:
+        _save_state(state, ODDS_SWING_STRATEGY_ID)
+    return placed
+
+
 def run_all_strategies(underdog_rows, lock_rows, prop_rows=None):
     """Runs every registered strategy (STRATEGIES) against the same signal
     set — the actual "keep searching for a winning strategy" loop: each
@@ -317,7 +436,13 @@ def get_summary(strategy_id="baseline"):
     bets = state["bets"]
     settled = [b for b in bets if b["status"] != "pending"]
     pending = [b for b in bets if b["status"] == "pending"]
-    wins = [b for b in settled if b["status"] == "won"]
+    # A profitable early "sold" exit (the odds-swing strategy) is as much a
+    # win as a resolved "won" bet — for every status the other three
+    # strategies ever produce, pnl > 0 and status == "won" are identical
+    # (a resolved bet's payout is either the full share value or zero), so
+    # this doesn't change their numbers at all, just correctly includes
+    # "sold" too.
+    wins = [b for b in settled if b["pnl"] > 0]
 
     total_pnl = round(sum(b["pnl"] for b in settled), 4)
     win_rate = round(len(wins) / len(settled), 4) if settled else None
@@ -341,7 +466,7 @@ def get_summary(strategy_id="baseline"):
         bucket = [b for b in settled if lo <= b["confidence"] < hi]
         if not bucket:
             continue
-        actual = sum(1 for b in bucket if b["status"] == "won") / len(bucket)
+        actual = sum(1 for b in bucket if b["pnl"] > 0) / len(bucket)
         avg_conf = sum(b["confidence"] for b in bucket) / len(bucket)
         calibration.append(
             {
@@ -390,5 +515,29 @@ def get_strategy_comparison():
                 "pending_count": s["pending_count"],
             }
         )
+
+    # Odds-swing isn't in STRATEGIES — different mechanic (early exit on
+    # price, not hold-to-resolution) and a bounded one-shot trial rather
+    # than an ongoing strategy — but still belongs in the comparison view.
+    s = get_summary(ODDS_SWING_STRATEGY_ID)
+    starting = s["starting_balance"]
+    roi_pct = round((s["balance"] - starting) / starting * 100, 2) if starting else None
+    trials_used = s["settled_count"] + s["pending_count"]
+    comparison.append(
+        {
+            "strategy_id": ODDS_SWING_STRATEGY_ID,
+            "label": (
+                f"Odds swing — buy {int(ODDS_SWING_ENTRY_MIN*100)}-{int(ODDS_SWING_ENTRY_MAX*100)}%, "
+                f"sell at {ODDS_SWING_SELL_MULTIPLE}x (trial: {trials_used}/{ODDS_SWING_MAX_TRIALS})"
+            ),
+            "balance": s["balance"],
+            "roi_pct": roi_pct,
+            "total_pnl": s["total_pnl"],
+            "win_rate": s["win_rate"],
+            "settled_count": s["settled_count"],
+            "pending_count": s["pending_count"],
+        }
+    )
+
     comparison.sort(key=lambda c: (c["roi_pct"] is None, -(c["roi_pct"] or 0)))
     return comparison

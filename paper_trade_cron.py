@@ -21,6 +21,7 @@ def main():
 
     _, _, underdog_rows, lock_rows, prop_rows = app_module._ranked_signal_lists(rows)
     placed = paper_trading.run_all_strategies(underdog_rows, lock_rows, prop_rows)
+    placed["odds_swing"] = paper_trading.run_odds_swing_strategy(rows)
 
     total_placed = sum(len(bets) for bets in placed.values())
     print(f"scanned {len(rows)} games, placed {total_placed} new bet(s)")

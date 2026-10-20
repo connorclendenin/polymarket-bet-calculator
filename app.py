@@ -63,6 +63,7 @@ def _build_game_row(game, books):
                 "logo": outcome.get("logo"),
                 "color": outcome.get("color"),
                 "home_away": outcome.get("home_away"),
+                "token_id": outcome["token_id"],
             }
         )
 
@@ -274,6 +275,7 @@ def api_paper():
             rows = _run_scan(None)  # always all leagues, regardless of UI filter
             _, _, underdog_rows, lock_rows, prop_rows = _ranked_signal_lists(rows)
             paper_trading.run_all_strategies(underdog_rows, lock_rows, prop_rows)
+            paper_trading.run_odds_swing_strategy(rows)
         except Exception:
             pass  # placing new bets is best-effort; still report current state below
     # Deployed: the scheduled job already placed/settled bets on its own
@@ -282,6 +284,9 @@ def api_paper():
 
     summary = paper_trading.get_summary("baseline")
     summary["strategy_comparison"] = paper_trading.get_strategy_comparison()
+    summary["odds_swing_bets"] = paper_trading.get_summary(paper_trading.ODDS_SWING_STRATEGY_ID)[
+        "bets"
+    ]
     return jsonify(summary)
 
 

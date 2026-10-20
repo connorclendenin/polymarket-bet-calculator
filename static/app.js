@@ -492,6 +492,33 @@ function buildBetHistory(bets) {
     </table>`;
 }
 
+function buildOddsSwingTable(bets) {
+  if (!bets || !bets.length) {
+    return '<div class="empty-state">No trades placed yet — waiting for a moneyline price to land in the 3-4% entry band.</div>';
+  }
+  const rows = bets
+    .map((b) => {
+      const pnlStr = b.pnl === null || b.pnl === undefined ? "—" : money(b.pnl);
+      const pnlClass = b.pnl > 0 ? "pnl-pos" : b.pnl < 0 ? "pnl-neg" : "";
+      const exitStr = b.status === "sold" ? `$${b.exit_price.toFixed(3)}` : b.status === "pending" ? "—" : "held to resolution";
+      return `
+      <tr>
+        <td><a href="${b.polymarket_url}" target="_blank" rel="noopener">${b.title}</a></td>
+        <td>${b.outcome}</td>
+        <td>$${b.price.toFixed(3)}</td>
+        <td>${exitStr}</td>
+        <td><span class="bet-status ${b.status}">${b.status}</span></td>
+        <td class="${pnlClass}">${pnlStr}</td>
+      </tr>`;
+    })
+    .join("");
+  return `
+    <table>
+      <thead><tr><th>Game</th><th>Bought</th><th>Entry price</th><th>Exit price</th><th>Status</th><th>P/L</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
 function buildStrategyComparisonTable(strategies) {
   if (!strategies || !strategies.length) return "";
   const rows = strategies
@@ -536,6 +563,8 @@ async function refreshPaperTrading() {
       ${stats}
       <div class="pnl-chart-wrap">${buildBalanceChart(data.history)}</div>
       ${buildStrategyComparisonTable(data.strategy_comparison)}
+      <h3 class="sub-heading">Odds swing experiment <span class="hint">(buy low / sell high on raw price action — not model-based, bounded to 5 trades total, win or lose)</span></h3>
+      ${buildOddsSwingTable(data.odds_swing_bets)}
       <h3 class="sub-heading">Calibration — predicted confidence vs. actual win rate</h3>
       ${buildCalibrationTable(data.calibration)}
       <h3 class="sub-heading">Bet type performance <span class="hint">(paused after 10+ settled bets net-losing — frees that stake for bet types that are actually working)</span></h3>

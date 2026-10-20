@@ -427,6 +427,7 @@ main {
 .bet-status.pending { background: var(--purple-soft); color: var(--purple); }
 .bet-status.won { background: var(--green-soft); color: var(--green); }
 .bet-status.lost { background: var(--red-soft); color: var(--red); }
+.bet-status.sold { background: var(--amber-soft); color: var(--amber); }
 
 /* ---------- Wallet / account tables ---------- */
 
