@@ -13,8 +13,12 @@ import os
 import urllib.error
 import urllib.request
 
-_UPSTASH_URL = os.environ.get("UPSTASH_REDIS_REST_URL", "").rstrip("/")
-_UPSTASH_TOKEN = os.environ.get("UPSTASH_REDIS_REST_TOKEN", "")
+_UPSTASH_URL = os.environ.get("UPSTASH_REDIS_REST_URL", "").strip().rstrip("/")
+_UPSTASH_TOKEN = os.environ.get("UPSTASH_REDIS_REST_TOKEN", "").strip()
+# .strip() guards against a trailing newline/space sneaking in from a
+# copy-paste into an env var field (confirmed empirically: a bare newline
+# in the Authorization header value makes Python's http.client raise
+# ValueError("Invalid header value ...") for every single request).
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 
