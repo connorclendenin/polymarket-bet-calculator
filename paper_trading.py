@@ -311,15 +311,13 @@ def _odds_swing_candidates(rows):
     a team right now. Scoped to moneyline only (row['outcomes'], the two
     game-winner sides) — doesn't touch prop/total markets.
 
-    Live games only — Connor's explicit correction: this is about in-game
-    momentum swings (a score, a turnover re-pricing a team fast), not
-    pregame price drift. A pregame longshot sitting at 3-4% days out is a
-    completely different thing (just a bad team), not what this strategy
-    is for."""
+    Pregame or live — Connor first restricted this to live games only (the
+    in-game-momentum framing), then explicitly reopened it to both when
+    resetting the whole paper-trading state under the new NFL/CFB/NBA/CBB
+    scope. A 3-4% price can come from a real pregame mismatch just as much
+    as a live swing; both are fair game for this strategy now."""
     candidates = []
     for row in rows:
-        if row.get("status") != "live":
-            continue
         for outcome in row.get("outcomes", []):
             price = outcome.get("best_ask")
             token_id = outcome.get("token_id")
@@ -341,10 +339,9 @@ def _odds_swing_candidates(rows):
 
 
 def run_odds_swing_strategy(rows):
-    """Buy-low-sell-high on LIVE games only, bounded to ODDS_SWING_MAX_TRIALS
+    """Buy-low-sell-high, pregame or live, bounded to ODDS_SWING_MAX_TRIALS
     total trades ever (Connor's explicit ask: try it 5 times, see if it
-    works, stop either way — and only on in-game momentum swings, not
-    pregame price drift). Settles pending bets first — each one either
+    works, stop either way). Settles pending bets first — each one either
     sells immediately once the live order book shows its sell target hit,
     or (if not) rides along to the real game resolution exactly like every
     other bet in this app — then places new entries, capped by the trial

@@ -563,7 +563,7 @@ async function refreshPaperTrading() {
       ${stats}
       <div class="pnl-chart-wrap">${buildBalanceChart(data.history)}</div>
       ${buildStrategyComparisonTable(data.strategy_comparison)}
-      <h3 class="sub-heading">Odds swing experiment <span class="hint">(live games only — buy low / sell high on in-game momentum, not pregame price; not model-based; bounded to 5 trades total, win or lose)</span></h3>
+      <h3 class="sub-heading">Odds swing experiment <span class="hint">(pregame or live — buy a longshot at 3-4%, sell once the price rises; not model-based; bounded to 5 trades total, win or lose)</span></h3>
       ${buildOddsSwingTable(data.odds_swing_bets)}
       <h3 class="sub-heading">Calibration — predicted confidence vs. actual win rate</h3>
       ${buildCalibrationTable(data.calibration)}
