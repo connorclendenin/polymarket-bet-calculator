@@ -360,19 +360,6 @@ def api_health():
     return jsonify({"status": "ok", "odds_configured": oddsapi.is_configured()})
 
 
-@app.route("/api/admin-void-odds-swing")
-def api_admin_void_odds_swing():
-    """Temporary — remove once used. Voids the odds-swing strategy's
-    current state (a pregame bet placed before the strategy was corrected
-    to live-games-only shouldn't count against its 5-trial limit)."""
-    state = paper_trading._load_state(paper_trading.ODDS_SWING_STRATEGY_ID)
-    voided = state["bets"]
-    state["bets"] = []
-    state["balance"] = state["starting_balance"]
-    paper_trading._save_state(state, paper_trading.ODDS_SWING_STRATEGY_ID)
-    return jsonify({"voided": voided, "new_state": state})
-
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5007))
     app.run(host="127.0.0.1", port=port, debug=True)
