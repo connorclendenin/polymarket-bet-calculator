@@ -108,7 +108,7 @@
 
     <section class="panel paper-panel" id="paper-panel">
       <h2>Paper trading — model accuracy test</h2>
-      <p class="panel-sub">Three independent $100 simulated bankrolls, each running a different, clearly-labeled strategy against this app's own signals (underdog/lock/prop), settled against the real game result: a baseline (current thresholds, flat $5 stakes), a high-conviction variant (stricter thresholds, same flat stake), and a Kelly-sized variant (same signals as baseline, stake scaled by edge). This exists to measure both whether the model's confidence is calibrated and, over time, which approach actually holds up — not a strategy to copy yet, not advice. No real money or orders are ever involved.</p>
+      <p class="panel-sub">Independent $100 simulated bankrolls, each running a different, clearly-labeled strategy against this app's own signals, settled against the real game result: a baseline (current thresholds, flat $5 stakes), a high-conviction variant (stricter thresholds, same flat stake), a Kelly-sized variant (same signals as baseline, stake scaled by edge), and a bounded odds-swing experiment (buy a live-game longshot at 3-4%, sell once the price doubles — 5 trades total, then stops). Scoped to NFL, CFB, NBA, and CBB only — the sports actually traded here; MLB/NHL signals still show elsewhere in the app but no new paper bets are placed in them. This exists to measure both whether the model's confidence is calibrated and, over time, which approach actually holds up — not a strategy to copy yet, not advice. No real money or orders are ever involved.</p>
       <div id="paper-body">Loading…</div>
     </section>
 

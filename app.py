@@ -273,9 +273,10 @@ def api_paper():
         # Local dev: place/settle live on every poll, same as always.
         try:
             rows = _run_scan(None)  # always all leagues, regardless of UI filter
-            _, _, underdog_rows, lock_rows, prop_rows = _ranked_signal_lists(rows)
+            paper_rows = paper_trading._restrict_to_paper_trading_leagues(rows)
+            _, _, underdog_rows, lock_rows, prop_rows = _ranked_signal_lists(paper_rows)
             paper_trading.run_all_strategies(underdog_rows, lock_rows, prop_rows)
-            paper_trading.run_odds_swing_strategy(rows)
+            paper_trading.run_odds_swing_strategy(paper_rows)
         except Exception:
             pass  # placing new bets is best-effort; still report current state below
     # Deployed: the scheduled job already placed/settled bets on its own

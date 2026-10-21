@@ -26,6 +26,21 @@ STARTING_BALANCE = 100.0
 FLAT_STAKE = 5.0  # same stake every bet, so calibration isn't confounded by sizing
 MIN_BALANCE_TO_BET = 1.0
 
+# Connor's explicit ask: he trades basketball, NFL, and CFB predominantly,
+# so paper trading (all strategies, including odds-swing) should only ever
+# place NEW bets in these leagues — not the whole app, which still
+# scans/shows every league on the main dashboard. "Basketball" covers both
+# NBA and CBB. Scoping is applied by filtering the already-scanned rows
+# before signals are derived from them, not by re-scanning — cheap, no
+# extra API calls. Existing pending bets already placed in other leagues
+# (MLB/NHL) aren't cancelled — they still settle normally; this only gates
+# new placements.
+PAPER_TRADING_LEAGUES = {"nfl", "nba", "cbb", "cfb"}
+
+
+def _restrict_to_paper_trading_leagues(rows):
+    return [r for r in rows if r["league"] in PAPER_TRADING_LEAGUES]
+
 # Caps how many simultaneous pending bets any one league can hold, so a
 # league that happens to throw off an unusually large batch of simultaneous
 # high-confidence signals on a given night (observed in practice: NHL on a

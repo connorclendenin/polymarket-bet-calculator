@@ -149,14 +149,19 @@ Actions minutes are limited, and every run here is a genuinely cold scan
 comfortably within the free tier. You can trigger it manually anytime from
 the repo's Actions tab ("Run workflow") instead of waiting.
 
-Three independent strategies run side by side (see `paper_trading.py`'s
-`STRATEGIES`): `baseline`, `high_conviction`, `kelly_sized`. Bets are placed
-from an all-leagues scan, independent of whatever league filter you have
-checked in the UI — so it keeps betting on everything the model is
-confident about even if you're currently just looking at one league. State
-lives in `data/paper_trades.json` (baseline) and
-`data/paper_trades_<strategy>.json` (the others); delete one to reset that
-strategy's bankroll back to $100.
+Four strategies run side by side: `baseline`, `high_conviction`, `kelly_sized`
+(see `paper_trading.py`'s `STRATEGIES`), and `odds_swing` (a separate,
+bounded buy-low-sell-high experiment on live games — see
+`run_odds_swing_strategy`, capped at 5 trades total, ever). Bets are placed
+from an all-leagues scan (independent of whatever league filter you have
+checked in the UI), then filtered down to `paper_trading.PAPER_TRADING_LEAGUES`
+(NFL/CFB/NBA/CBB — Connor's own predominant sports) before any paper-trading
+signal is derived — the rest of the app (Smart bets, Games grid, etc.) still
+covers every league; only new paper-trading placements are scoped narrower.
+Existing pending bets already placed in other leagues before this scoping
+aren't cancelled, they just settle out normally over time. State lives in
+`data/paper_trades.json` (baseline) and `data/paper_trades_<strategy>.json`
+(the others); delete one to reset that strategy's bankroll back to $100.
 
 ## Deploy so you can view it from anywhere
 
