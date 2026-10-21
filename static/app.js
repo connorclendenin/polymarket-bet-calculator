@@ -612,7 +612,7 @@ async function refreshScan() {
     renderFilteredGames();
 
     document.getElementById("last-updated").textContent = data.scan_computed_at
-      ? `data as of ${fmtTime(data.scan_computed_at)} (updated hourly)`
+      ? `data as of ${fmtTime(data.scan_computed_at)} (updated every 5 min)`
       : `updated ${new Date().toLocaleTimeString()}`;
   } catch (err) {
     document.getElementById("last-updated").textContent = "update failed, retrying…";

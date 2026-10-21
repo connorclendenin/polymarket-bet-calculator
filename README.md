@@ -129,25 +129,28 @@ public market data.
 
 **Runs two ways:** while the app is open (page polls `/api/paper` every
 30s), and independently via a scheduled GitHub Actions workflow
-(`.github/workflows/paper-trading-cron.yml`, runs hourly) so it keeps
-advancing even with the laptop closed or off — both paths call the exact
-same `paper_trading.run_all_strategies`, are idempotent, and write to the
-same state files, so it's safe for both to run at once.
+(`.github/workflows/paper-trading-cron.yml`, runs every 5 minutes — GitHub's
+shortest supported interval) so it keeps advancing even with the laptop
+closed or off — both paths call the exact same `paper_trading.run_all_strategies`,
+are idempotent, and write to the same state files, so it's safe for both to
+run at once.
 
-To turn on the scheduled run: push this repo to GitHub (private
-recommended — not for the code, which has nothing secret in it, but
-because this is your real trading setup), then add these as encrypted repo
-secrets (Settings → Secrets and variables → Actions → New repository
-secret) with the same values as your local `.env`:
+To turn on the scheduled run: push this repo to GitHub, then add these as
+encrypted repo secrets (Settings → Secrets and variables → Actions → New
+repository secret) with the same values as your local `.env`:
 - `POLYMARKET_KEY_ID`
 - `POLYMARKET_SECRET_KEY`
 - `ODDS_API_KEY` (optional — only if you have one)
 
-The workflow runs hourly rather than every 30s: a private repo's free
-Actions minutes are limited, and every run here is a genuinely cold scan
-(no warm cache carries over between runs), so hourly keeps this
-comfortably within the free tier. You can trigger it manually anytime from
-the repo's Actions tab ("Run workflow") instead of waiting.
+**This repo is public** (deliberately, per Connor's own choice): GitHub
+Actions minutes are unlimited/free on public repos at any frequency, unlike
+a private repo's ~2,000 min/month free tier, which 5-minute cadence would
+blow through fast (every run is a genuinely cold scan, no warm cache
+carries over between runs — real compute, not a cheap no-op). Nothing
+secret has ever lived in this repo's history (verified before flipping
+visibility) — real credentials only ever exist as GitHub/Vercel encrypted
+env vars, never committed. You can also trigger a run manually anytime
+from the repo's Actions tab ("Run workflow") instead of waiting.
 
 Four strategies run side by side: `baseline`, `high_conviction`, `kelly_sized`
 (see `paper_trading.py`'s `STRATEGIES`), and `odds_swing` (a separate,
@@ -169,23 +172,24 @@ Not deployed yet by default — this runs the real `.us` API scan which is
 too expensive (hundreds of games, ~50s cold) to recompute on every page
 load on a serverless host, so deploying isn't just "point Vercel at it"
 like the sibling apps. The architecture: the GitHub Actions cron
-(`.github/workflows/paper-trading-cron.yml`, already running hourly — see
-above) does the expensive scan once per hour and writes the result plus
-paper-trading state to Upstash Redis; the deployed dashboard only ever
-*reads* that cache (fast, well inside a serverless function's time limit)
-rather than recomputing it. **This means the deployed dashboard is only as
-fresh as the last hourly cron run** — not live/second-by-second like
-running it locally. The "Live tracker" and "Smart" sections will feel
-noticeably less real-time once deployed; that's the actual tradeoff of
-making this reachable without your computer on, not a bug.
+(`.github/workflows/paper-trading-cron.yml`, running every 5 minutes — see
+above) does the expensive scan and writes the result plus paper-trading
+state to Upstash Redis; the deployed dashboard only ever *reads* that
+cache (fast, well inside a serverless function's time limit) rather than
+recomputing it. **This means the deployed dashboard is only as fresh as
+the last cron run** — up to ~5 minutes behind, not truly
+live/second-by-second like running it locally, but close. The "Live
+tracker" and "Smart" sections will feel slightly less real-time once
+deployed; that's the actual tradeoff of making this reachable without your
+computer on, not a bug.
 
 To set it up:
 1. Add `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` as secrets on
    this GitHub repo (Settings → Secrets and variables → Actions) — reusing
    the same free Upstash database as `portfolio-dashboard`/
    `financial-growth-analyzer` is fine, this project namespaces its own
-   keys under `polymarket-bet-calculator:`. The next hourly cron run (or a
-   manual "Run workflow" from the Actions tab) starts populating the cache.
+   keys under `polymarket-bet-calculator:`. The next cron run (or a manual
+   "Run workflow" from the Actions tab) starts populating the cache.
 2. Import this GitHub repo into Vercel (auto-detects `vercel.json`, no
    config needed) — same `altos` team as the other apps keeps billing/auth
    in one place, but any account works.

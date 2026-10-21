@@ -261,8 +261,8 @@ def api_scan():
     }
     if scan_computed_at:
         # Deployed data is only as fresh as the scheduled job's last run
-        # (hourly) — the frontend shows this instead of "just now" so it
-        # doesn't look more live than it actually is.
+        # (every 5 minutes) — the frontend shows this instead of "just now"
+        # so it doesn't look more live than it actually is.
         response["scan_computed_at"] = scan_computed_at
     return jsonify(response)
 

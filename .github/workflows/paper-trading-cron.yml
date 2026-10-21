@@ -1,16 +1,19 @@
 name: Paper trading cron
 
 # Keeps the paper-trading strategies advancing even when nobody has the app
-# open (laptop closed, asleep, or off). Runs hourly, not more often: this
-# repo is private, so GitHub's free tier gives ~2000 Actions minutes/month,
-# and every run here is a genuinely cold scan (no warm in-memory cache
-# carries over between runs on a fresh container) taking ~1-2 minutes —
-# hourly keeps this comfortably inside the free allowance. Paper-trading
-# calibration doesn't need sub-hourly granularity to be meaningful; this
-# only trades off how promptly a finished game gets settled, not accuracy.
+# open (laptop closed, asleep, or off). Runs every 5 minutes (GitHub's
+# shortest supported interval) — only possible for free because this repo
+# is public: Actions minutes are unlimited/free on public repos regardless
+# of frequency, unlike a private repo's ~2000 min/month free tier (made
+# public specifically for this; see README). Every run is still a genuinely
+# cold scan (no warm in-memory cache carries over between runs on a fresh
+# container), ~1-2 minutes each — at 5-minute cadence that's real, continual
+# compute, just free. This cadence matters most for the odds-swing strategy
+# (buy-low-sell-high on live in-game price moves — the whole point is
+# catching a swing before it reverts, which hourly checks could miss).
 on:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch: {}
 
 permissions:
