@@ -1,5 +1,27 @@
 {
   "starting_balance": 100.0,
-  "balance": 100.0,
-  "bets": []
+  "balance": 95.0,
+  "bets": [
+    {
+      "id": "6efb60972a",
+      "event_id": "1178410",
+      "league": "cfb",
+      "title": "Murray State vs. South Dakota State",
+      "outcome": "Murray State",
+      "settlement_key": "Murray State",
+      "token_id": "14483025418453743278496713307133885212422755750482645382746841120356463016257",
+      "signal_type": "odds_swing",
+      "basis": "odds_swing",
+      "confidence": 0.033,
+      "price": 0.033,
+      "stake": 5.0,
+      "shares": 151.5152,
+      "placed_at": "2026-10-21T02:24:24.998712+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/cfb-murst-sdkst-2026-10-24"
+    }
+  ]
 }
