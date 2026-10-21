@@ -1,27 +1,5 @@
 {
   "starting_balance": 100.0,
-  "balance": 95.0,
-  "bets": [
-    {
-      "id": "8cdb48a6cc",
-      "event_id": "1220244",
-      "league": "cfb",
-      "title": "Notre Dame vs. Navy",
-      "outcome": "Navy",
-      "settlement_key": "Navy",
-      "token_id": "34472303361470211094068380825881859760008634346123990893358102685961709340486",
-      "signal_type": "odds_swing",
-      "basis": "odds_swing",
-      "confidence": 0.031,
-      "price": 0.031,
-      "stake": 5.0,
-      "shares": 161.2903,
-      "placed_at": "2026-10-20T22:24:10.206255+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/cfb-nd-navy-2026-10-31"
-    }
-  ]
+  "balance": 100.0,
+  "bets": []
 }
