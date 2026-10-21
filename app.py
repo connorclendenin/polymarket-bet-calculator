@@ -361,22 +361,6 @@ def api_health():
     return jsonify({"status": "ok", "odds_configured": oddsapi.is_configured()})
 
 
-@app.route("/api/admin-reset-paper-trading")
-def api_admin_reset_paper_trading():
-    """Temporary — remove once used. Resets all four paper-trading
-    strategies' deployed/Redis state back to a clean $100 bankroll, no
-    bets — Connor's explicit ask after rescoping to NFL/CFB/NBA/CBB and
-    reopening odds-swing to pregame-or-live, so the whole experiment
-    starts clean under the new rules rather than carrying forward
-    now-out-of-scope history."""
-    reset = {}
-    for strategy_id in list(paper_trading.STRATEGIES) + [paper_trading.ODDS_SWING_STRATEGY_ID]:
-        state = paper_trading._default_state()
-        paper_trading._save_state(state, strategy_id)
-        reset[strategy_id] = state
-    return jsonify(reset)
-
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5007))
     app.run(host="127.0.0.1", port=port, debug=True)
