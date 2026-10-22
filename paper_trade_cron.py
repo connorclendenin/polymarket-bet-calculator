@@ -12,26 +12,9 @@ load_dotenv()
 
 import app as app_module
 import paper_trading
-import us_api
 
 
 def main():
-    import os
-
-    key_id = os.environ.get("POLYMARKET_KEY_ID", "")
-    secret = os.environ.get("POLYMARKET_SECRET_KEY", "")
-    print(f"us_api env check: key_id chars={len(key_id)}, secret chars={len(secret)}")
-
-    if us_api.is_configured():
-        try:
-            bp = us_api.fetch_buying_power()
-            print(f"us_api check: ok, buying_power={bp}")
-        except Exception as exc:
-            detail = getattr(getattr(exc, "response", None), "text", None)
-            print(f"us_api check: FAILED: {exc}" + (f" | body: {detail}" if detail else ""))
-    else:
-        print("us_api check: not configured")
-
     rows = app_module._run_scan(None)  # all leagues — the deployed dashboard
     # (via cache_scan_snapshot below) still shows every sport; only paper
     # trading itself is scoped narrower, just below.
