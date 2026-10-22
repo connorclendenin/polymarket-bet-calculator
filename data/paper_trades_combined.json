@@ -3,7 +3,7 @@
   "balance": 40.0,
   "bets": [
     {
-      "id": "3c14d458f6",
+      "id": "0e8dc7891e",
       "event_id": "1197295",
       "league": "nba",
       "title": "Cavaliers vs. 76ers",
@@ -12,11 +12,11 @@
       "token_id": null,
       "signal_type": "underdog",
       "basis": "live",
-      "confidence": 0.8986,
-      "price": 0.41,
+      "confidence": 0.8628,
+      "price": 0.28,
       "stake": 5.0,
-      "shares": 12.1951,
-      "placed_at": "2026-10-22T23:31:13.591222+00:00",
+      "shares": 17.8571,
+      "placed_at": "2026-10-22T23:43:58.096607+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
@@ -24,7 +24,7 @@
       "polymarket_url": "https://polymarket.com/event/nba-cle-phi-2026-10-22"
     },
     {
-      "id": "e79e823824",
+      "id": "c1c02a61ab",
       "event_id": "1202600",
       "league": "nba",
       "title": "Knicks vs. Celtics",
@@ -37,7 +37,7 @@
       "price": 0.45,
       "stake": 5.0,
       "shares": 11.1111,
-      "placed_at": "2026-10-22T23:31:13.591234+00:00",
+      "placed_at": "2026-10-22T23:43:58.096622+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
@@ -45,7 +45,7 @@
       "polymarket_url": "https://polymarket.com/event/nba-nyk-bos-2026-10-23"
     },
     {
-      "id": "aa9416344a",
+      "id": "24fa851d5d",
       "event_id": "1203772",
       "league": "nba",
       "title": "Rockets vs. Spurs",
@@ -58,7 +58,7 @@
       "price": 0.35,
       "stake": 5.0,
       "shares": 14.2857,
-      "placed_at": "2026-10-22T23:31:13.591244+00:00",
+      "placed_at": "2026-10-22T23:43:58.096633+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
@@ -66,7 +66,7 @@
       "polymarket_url": "https://polymarket.com/event/nba-hou-sas-2026-10-23"
     },
     {
-      "id": "36c67e97d5",
+      "id": "481d513d97",
       "event_id": "1203773",
       "league": "nba",
       "title": "Pelicans vs. Jazz",
@@ -79,7 +79,7 @@
       "price": 0.44,
       "stake": 5.0,
       "shares": 11.3636,
-      "placed_at": "2026-10-22T23:31:13.591254+00:00",
+      "placed_at": "2026-10-22T23:43:58.096648+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
@@ -87,7 +87,7 @@
       "polymarket_url": "https://polymarket.com/event/nba-nop-uta-2026-10-23"
     },
     {
-      "id": "38219b4758",
+      "id": "f91c7482bf",
       "event_id": "1178380",
       "league": "cfb",
       "title": "Dartmouth vs. Columbia",
@@ -100,7 +100,7 @@
       "price": 0.46,
       "stake": 5.0,
       "shares": 10.8696,
-      "placed_at": "2026-10-22T23:31:13.591266+00:00",
+      "placed_at": "2026-10-22T23:43:58.096661+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
@@ -108,7 +108,7 @@
       "polymarket_url": "https://polymarket.com/event/cfb-dart-clmb-2026-10-24"
     },
     {
-      "id": "8b9335f57c",
+      "id": "f4af36015f",
       "event_id": "1178382",
       "league": "cfb",
       "title": "Norfolk State vs. South Carolina State",
@@ -121,7 +121,7 @@
       "price": 0.16,
       "stake": 5.0,
       "shares": 31.25,
-      "placed_at": "2026-10-22T23:31:13.591276+00:00",
+      "placed_at": "2026-10-22T23:43:58.096671+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
@@ -129,7 +129,7 @@
       "polymarket_url": "https://polymarket.com/event/cfb-norfst-scarst-2026-10-24"
     },
     {
-      "id": "58aefd3503",
+      "id": "af9c983eb4",
       "event_id": "1178406",
       "league": "cfb",
       "title": "Stony Brook vs. Bryant",
@@ -142,7 +142,7 @@
       "price": 0.43,
       "stake": 5.0,
       "shares": 11.6279,
-      "placed_at": "2026-10-22T23:31:13.591285+00:00",
+      "placed_at": "2026-10-22T23:43:58.096681+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
@@ -150,7 +150,7 @@
       "polymarket_url": "https://polymarket.com/event/cfb-stbr-bryant-2026-10-24"
     },
     {
-      "id": "40a49c561b",
+      "id": "4b95dcf60a",
       "event_id": "1178386",
       "league": "cfb",
       "title": "Northern Iowa vs. Southern Illinois",
@@ -160,10 +160,10 @@
       "signal_type": "underdog",
       "basis": "pregame",
       "confidence": 0.625,
-      "price": 0.43,
+      "price": 0.42,
       "stake": 5.0,
-      "shares": 11.6279,
-      "placed_at": "2026-10-22T23:31:13.591295+00:00",
+      "shares": 11.9048,
+      "placed_at": "2026-10-22T23:43:58.096691+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
@@ -171,7 +171,7 @@
       "polymarket_url": "https://polymarket.com/event/cfb-niowa-sill-2026-10-24"
     },
     {
-      "id": "a67e74286d",
+      "id": "cdc72f15f8",
       "event_id": "1022440",
       "league": "nfl",
       "title": "Giants vs. Texans",
@@ -184,7 +184,7 @@
       "price": 0.2,
       "stake": 5.0,
       "shares": 25.0,
-      "placed_at": "2026-10-22T23:31:13.591332+00:00",
+      "placed_at": "2026-10-22T23:43:58.096729+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
@@ -192,7 +192,7 @@
       "polymarket_url": "https://polymarket.com/event/nfl-nyg-hou-2026-10-25"
     },
     {
-      "id": "1a314b9acd",
+      "id": "d548343751",
       "event_id": "1022449",
       "league": "nfl",
       "title": "Rams vs. Raiders",
@@ -205,7 +205,7 @@
       "price": 0.36,
       "stake": 5.0,
       "shares": 13.8889,
-      "placed_at": "2026-10-22T23:31:13.591342+00:00",
+      "placed_at": "2026-10-22T23:43:58.096740+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
@@ -213,7 +213,7 @@
       "polymarket_url": "https://polymarket.com/event/nfl-la-lv-2026-10-25"
     },
     {
-      "id": "e6e2e63090",
+      "id": "322fa96bd2",
       "event_id": "1022451",
       "league": "nfl",
       "title": "Chiefs vs. Seahawks",
@@ -226,7 +226,7 @@
       "price": 0.43,
       "stake": 5.0,
       "shares": 11.6279,
-      "placed_at": "2026-10-22T23:31:13.591356+00:00",
+      "placed_at": "2026-10-22T23:43:58.096754+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
@@ -234,7 +234,7 @@
       "polymarket_url": "https://polymarket.com/event/nfl-kc-sea-2026-10-26"
     },
     {
-      "id": "fee8562c04",
+      "id": "9d4f500b4a",
       "event_id": "1027875",
       "league": "nfl",
       "title": "Cowboys vs. Eagles",
@@ -247,7 +247,7 @@
       "price": 0.36,
       "stake": 5.0,
       "shares": 13.8889,
-      "placed_at": "2026-10-22T23:31:13.591369+00:00",
+      "placed_at": "2026-10-22T23:43:58.096767+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,

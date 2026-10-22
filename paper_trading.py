@@ -397,12 +397,16 @@ def get_strategy_comparison():
     side by side. Early on (few settled bets per strategy) this will look
     like noise — that's correct and expected, not a bug; a meaningful gap
     only means something once settled_count is comfortably into the tens
-    per strategy. Don't declare a winner off this before then."""
+    per strategy. Don't declare a winner off this before then.
+
+    ROI is realized P/L only (settled bets' outcomes), never the stake
+    currently tied up in pending bets — Connor's explicit ask: placing a
+    bet shouldn't itself move ROI, only winning or losing one should."""
     comparison = []
     for strategy_id, cfg in STRATEGIES.items():
         s = get_summary(strategy_id)
         starting = s["starting_balance"]
-        roi_pct = round((s["balance"] - starting) / starting * 100, 2) if starting else None
+        roi_pct = round(s["total_pnl"] / starting * 100, 2) if starting else None
         comparison.append(
             {
                 "strategy_id": strategy_id,

@@ -511,7 +511,7 @@ function buildStrategyComparisonTable(strategies) {
     .join("");
   return `
     <h3 class="sub-heading">Account comparison <span class="hint">(three accounts run side by side against the same signals — the only honest way to tell which actually works is real settled bets accumulating over weeks, not a quick tuning pass)</span></h3>
-    <div class="empty-state strategy-caveat">ROI here includes stake already committed to bets still pending (not yet won or lost) — a big negative number with few settled bets usually means "money deployed," not "money lost." Judge an account by its win rate and settled count, not ROI, until settled_count is well into the tens.</div>
+    <div class="empty-state strategy-caveat">ROI reflects settled bets only — placing a new bet never moves it, only a bet actually winning or losing does. Balance still drops once a stake is committed (that cash is tied up until the game resolves), so balance and ROI can disagree while bets are pending; that's expected, not a bug. Judge an account by its win rate and settled count, not ROI, until settled_count is well into the tens.</div>
     <table class="calibration-table">
       <thead><tr><th>Account</th><th>Balance</th><th>ROI</th><th>Win rate</th><th># settled</th><th># pending</th></tr></thead>
       <tbody>${rows}</tbody>
