@@ -309,7 +309,9 @@ def api_us_account():
     try:
         summary = us_api.get_account_summary()
     except Exception as exc:
-        return jsonify({"configured": True, "error": f"API request failed: {exc}"}), 502
+        detail = getattr(getattr(exc, "response", None), "text", None)
+        msg = f"API request failed: {exc}" + (f" | body: {detail}" if detail else "")
+        return jsonify({"configured": True, "error": msg}), 502
 
     capital_history = None
     try:
