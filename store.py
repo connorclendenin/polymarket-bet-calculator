@@ -115,5 +115,5 @@ def delete(redis_key, local_key):
 
     try:
         os.remove(_local_path(local_key))
-    except FileNotFoundError:
+    except OSError:
         pass
