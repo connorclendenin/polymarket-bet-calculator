@@ -16,6 +16,12 @@ import us_api
 
 
 def main():
+    import os
+
+    key_id = os.environ.get("POLYMARKET_KEY_ID", "")
+    secret = os.environ.get("POLYMARKET_SECRET_KEY", "")
+    print(f"us_api env check: key_id chars={len(key_id)}, secret chars={len(secret)}")
+
     if us_api.is_configured():
         try:
             bp = us_api.fetch_buying_power()
