@@ -365,21 +365,6 @@ def api_health():
     return jsonify({"status": "ok", "odds_configured": oddsapi.is_configured()})
 
 
-@app.route("/api/admin-cleanup-old-strategies", methods=["POST"])
-def api_admin_cleanup_old_strategies():
-    """Temporary, one-time — deletes the four retired strategies' state
-    (baseline/high_conviction/kelly_sized/odds_swing, replaced by
-    underdogs/locks/combined) from the deployed Redis store, since there's
-    no local Upstash credential to do it any other way. Remove this route
-    once it's been hit once."""
-    removed = []
-    for strategy_id in ["baseline", "high_conviction", "kelly_sized", "odds_swing"]:
-        redis_key, local_key = paper_trading._state_keys(strategy_id)
-        store.delete(redis_key, local_key)
-        removed.append(strategy_id)
-    return jsonify({"removed": removed})
-
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5007))
     app.run(host="127.0.0.1", port=port, debug=True)
