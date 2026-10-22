@@ -22,9 +22,8 @@ def main():
     # recomputing live (would time out a serverless function) — see app.py's api_scan.
 
     paper_rows = paper_trading._restrict_to_paper_trading_leagues(rows)
-    _, _, underdog_rows, lock_rows, prop_rows = app_module._ranked_signal_lists(paper_rows)
-    placed = paper_trading.run_all_strategies(underdog_rows, lock_rows, prop_rows)
-    placed["odds_swing"] = paper_trading.run_odds_swing_strategy(paper_rows)
+    _, _, underdog_rows, lock_rows, _ = app_module._ranked_signal_lists(paper_rows)
+    placed = paper_trading.run_all_strategies(underdog_rows, lock_rows)
 
     total_placed = sum(len(bets) for bets in placed.values())
     print(f"scanned {len(rows)} games, placed {total_placed} new bet(s)")

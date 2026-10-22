@@ -274,21 +274,23 @@ def api_paper():
         try:
             rows = _run_scan(None)  # always all leagues, regardless of UI filter
             paper_rows = paper_trading._restrict_to_paper_trading_leagues(rows)
-            _, _, underdog_rows, lock_rows, prop_rows = _ranked_signal_lists(paper_rows)
-            paper_trading.run_all_strategies(underdog_rows, lock_rows, prop_rows)
-            paper_trading.run_odds_swing_strategy(paper_rows)
+            _, _, underdog_rows, lock_rows, _ = _ranked_signal_lists(paper_rows)
+            paper_trading.run_all_strategies(underdog_rows, lock_rows)
         except Exception:
             pass  # placing new bets is best-effort; still report current state below
     # Deployed: the scheduled job already placed/settled bets on its own
     # schedule — just report current state, which is fast (reads Redis, no
     # live scan) and safely within a serverless function's time limit.
 
-    summary = paper_trading.get_summary("baseline")
-    summary["strategy_comparison"] = paper_trading.get_strategy_comparison()
-    summary["odds_swing_bets"] = paper_trading.get_summary(paper_trading.ODDS_SWING_STRATEGY_ID)[
-        "bets"
-    ]
-    return jsonify(summary)
+    return jsonify(
+        {
+            "strategy_comparison": paper_trading.get_strategy_comparison(),
+            "accounts": {
+                strategy_id: paper_trading.get_summary(strategy_id)
+                for strategy_id in paper_trading.STRATEGIES
+            },
+        }
+    )
 
 
 @app.route("/api/us-account")
@@ -361,6 +363,21 @@ def api_positions():
 @app.route("/api/health")
 def api_health():
     return jsonify({"status": "ok", "odds_configured": oddsapi.is_configured()})
+
+
+@app.route("/api/admin-cleanup-old-strategies", methods=["POST"])
+def api_admin_cleanup_old_strategies():
+    """Temporary, one-time — deletes the four retired strategies' state
+    (baseline/high_conviction/kelly_sized/odds_swing, replaced by
+    underdogs/locks/combined) from the deployed Redis store, since there's
+    no local Upstash credential to do it any other way. Remove this route
+    once it's been hit once."""
+    removed = []
+    for strategy_id in ["baseline", "high_conviction", "kelly_sized", "odds_swing"]:
+        redis_key, local_key = paper_trading._state_keys(strategy_id)
+        store.delete(redis_key, local_key)
+        removed.append(strategy_id)
+    return jsonify({"removed": removed})
 
 
 if __name__ == "__main__":

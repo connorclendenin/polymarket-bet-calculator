@@ -308,7 +308,14 @@ main {
 
 .empty-state { color: var(--text-faint-solid); font-size: 12.5px; padding: 4px 0; }
 .strategy-caveat { margin-bottom: 10px; line-height: 1.5; }
-.strategy-row-baseline td:first-child { color: var(--purple); font-weight: 700; }
+.strategy-row-combined td:first-child { color: var(--purple); font-weight: 700; }
+
+.account-card {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 18px; margin-bottom: 18px; background: var(--surface-2);
+}
+.account-card-title { margin-top: 0; }
+.account-card h4.sub-heading { margin-top: 20px; }
 
 /* ---------- Badges on game cards ---------- */
 

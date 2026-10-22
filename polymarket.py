@@ -329,38 +329,6 @@ def fetch_event_resolution(event_id):
     return _cache.get_or_set(f"resolution:{event_id}", _RESOLUTION_TTL, _load)
 
 
-def fetch_prop_resolution(event_id, token_id):
-    """For a total/team-total prop market (identified by one of its two
-    token ids, since an event carries a whole ladder of parallel total-line
-    markets, not just one), returns the winning side's name ("Over"/"Under")
-    once that specific market has closed. Returns None if not resolved yet
-    or the token can't be found on this event."""
-
-    def _load():
-        data = _get(f"{GAMMA_BASE}/events/{event_id}")
-        markets = data.get("markets") or []
-        for m in markets:
-            token_ids = _parse_json_field(m.get("clobTokenIds"))
-            if token_id not in token_ids:
-                continue
-            if not m.get("closed"):
-                return None
-            outcomes = _parse_json_field(m.get("outcomes"))
-            prices = _parse_json_field(m.get("outcomePrices"))
-            if len(outcomes) != len(prices):
-                return None
-            for name, price in zip(outcomes, prices):
-                try:
-                    if float(price) >= 0.99:
-                        return name
-                except (TypeError, ValueError):
-                    continue
-            return None
-        return None
-
-    return _cache.get_or_set(f"prop_resolution:{event_id}:{token_id}", _RESOLUTION_TTL, _load)
-
-
 _ACTIVITY_TTL = 300  # history only grows; no need to refetch every positions load
 
 

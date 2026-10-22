@@ -1,24 +1,33 @@
-"""Automated paper-trading tracker: several independent simulated bankrolls,
-each running a clearly different, pre-registered strategy (see STRATEGIES)
-against this app's own signals, settling each bet against the real game
-outcome on Polymarket. No real money, no real orders; this never touches
-Polymarket beyond reading public market data.
+"""Automated paper-trading tracker: three independent simulated $100
+bankrolls, each running a clearly different, pre-registered strategy (see
+STRATEGIES) against this app's own signals, settling each bet against the
+real game outcome on Polymarket. No real money, no real orders; this never
+touches Polymarket beyond reading public market data.
 
-Why several strategies instead of one: with only a handful of settled bets,
-no amount of after-the-fact tuning of ONE strategy's thresholds/staking can
-honestly tell you it's "found" a winner — that's just fitting noise. The
-only honest way to find out which approach actually holds up is to run a
-few clearly different rule sets side by side against the exact same signal
-stream and let real settled outcomes accumulate under each, over weeks, not
-one sitting. STRATEGIES below are intentionally few and clearly
-differentiated (selectivity vs. staking), not a tuned grid search.
+The three accounts, Connor's own explicit design:
+- `underdogs` — only "Smart underdog" signals, flat stake.
+- `locks` — only "Lock" signals, flat stake.
+- `combined` — both signal types, but stake sizing *learns from this
+  account's own settled history*: a (signal_type, league) segment that's
+  been winning gets a bigger stake next time, one that's been losing gets a
+  smaller one, well before a real loser gets fully paused (see
+  _segment_performance / _combined_adaptive_stake). This is the account
+  that's actually supposed to refine its own bet choices over time, not
+  just report calibration after the fact.
+
+Why three separate accounts instead of one: with only a handful of settled
+bets, no amount of after-the-fact tuning of ONE strategy's thresholds can
+honestly tell you it's "found" a winner — that's just fitting noise. Running
+clearly different rule sets side by side against the exact same signal
+stream and letting real settled outcomes accumulate under each, over weeks,
+is the only honest way to find out which approach — and whether adapting at
+all — actually holds up.
 """
 
 import uuid
 from collections import Counter
 from datetime import datetime, timezone
 
-import confidence
 import polymarket
 import store
 
@@ -27,26 +36,35 @@ FLAT_STAKE = 5.0  # same stake every bet, so calibration isn't confounded by siz
 MIN_BALANCE_TO_BET = 1.0
 
 # Connor's explicit ask: he trades basketball, NFL, and CFB predominantly,
-# so paper trading (all strategies, including odds-swing) should only ever
-# place NEW bets in these leagues — not the whole app, which still
-# scans/shows every league on the main dashboard. "Basketball" covers both
-# NBA and CBB. Scoping is applied by filtering the already-scanned rows
-# before signals are derived from them, not by re-scanning — cheap, no
-# extra API calls. Existing pending bets already placed in other leagues
-# (MLB/NHL) aren't cancelled — they still settle normally; this only gates
-# new placements.
+# so paper trading (all strategies) should only ever place NEW bets in these
+# leagues — not the whole app, which still scans/shows every league on the
+# main dashboard. "Basketball" covers both NBA and CBB. Scoping is applied
+# by filtering the already-scanned rows before signals are derived from
+# them, not by re-scanning — cheap, no extra API calls. Existing pending
+# bets already placed in other leagues (MLB/NHL) aren't cancelled — they
+# still settle normally; this only gates new placements.
 PAPER_TRADING_LEAGUES = {"nfl", "nba", "cbb", "cfb"}
 
 
 def _restrict_to_paper_trading_leagues(rows):
     return [r for r in rows if r["league"] in PAPER_TRADING_LEAGUES]
 
+
+def _soonest_first(rows):
+    """Connor's explicit ask: he doesn't want to keep waiting on results, so
+    when there are more eligible signals than a strategy can act on (the
+    per-league pending cap below), the games that actually get bet on
+    should be the ones starting soonest — today's games, not ones days
+    out — so bets resolve and feed the calibration/learning loop faster.
+    Rows with no parseable start time sort last, never first."""
+    return sorted(rows, key=lambda r: r.get("game_start") or "9999")
+
 # Caps how many simultaneous pending bets any one league can hold, so a
 # league that happens to throw off an unusually large batch of simultaneous
 # high-confidence signals on a given night (observed in practice: NHL on a
-# heavy slate) can't eat the whole bankroll before other sports' signals —
-# or NFL prop bets — get a turn. Existing bets already placed before this
-# cap existed aren't touched; it only gates new placements going forward.
+# heavy slate) can't eat the whole bankroll before other sports' signals get
+# a turn. Existing bets already placed before this cap existed aren't
+# touched; it only gates new placements going forward.
 MAX_PENDING_PER_LEAGUE = 4
 
 CONFIDENCE_BUCKETS = [(0.5, 0.6), (0.6, 0.7), (0.7, 0.8), (0.8, 0.9), (0.9, 1.01)]
@@ -56,63 +74,70 @@ CONFIDENCE_BUCKETS = [(0.5, 0.6), (0.6, 0.7), (0.7, 0.8), (0.8, 0.9), (0.9, 1.01
 # below this count nothing is ever paused, however it's done so far.
 MIN_SEGMENT_SAMPLES = 10
 
-# "Odds swing" — a genuinely different strategy from the four above: not
-# hold-to-resolution at all, but buy a deep longshot cheap and sell it back
-# the moment the market re-prices it higher (classic momentum/mean-reversion
-# trading), riding to the real game resolution only if that never happens.
-# Connor's own explicit ask, including the exact bound: try it 5 times total
-# and stop — not an ongoing strategy like the other four, a one-shot trial.
-ODDS_SWING_STRATEGY_ID = "odds_swing"
-ODDS_SWING_ENTRY_MIN = 0.03  # "buy low" — deep longshots only, 3-4 cents
-ODDS_SWING_ENTRY_MAX = 0.04
-ODDS_SWING_SELL_MULTIPLE = 2.0  # "sell high" — exits once the price has at
-# least doubled from entry (e.g. 3c -> 6c+). Hand-picked, not fit to data:
-# meaningful enough to not trigger on every tiny wiggle, low enough to
-# actually be reachable within 5 trials on a real swing (momentum/an early
-# score in a live game is exactly the kind of move that can do this).
-ODDS_SWING_MAX_TRIALS = 5  # total trades ever, win or lose — once reached,
-# this strategy stops placing new bets permanently (it does NOT reset).
+# `combined`'s own learning knobs. Below COMBINED_MIN_SAMPLES_TO_ADAPT
+# settled bets in a (signal_type, league) segment there's no real track
+# record yet, so it bets at the flat baseline; above that, stake scales
+# with that segment's own win rate — win_rate 0.5 (coin flip) -> 1.0x
+# (baseline), 0.75 -> 1.5x, 0.25 -> 0.5x, clamped to the two bounds below.
+# This is deliberately a small, inspectable rule (not a trained model): bet
+# bigger where this account has actually been right, smaller where it
+# hasn't, and let MIN_SEGMENT_SAMPLES's existing hard pause (above) take
+# over entirely once a segment is a confirmed loser.
+COMBINED_MIN_SAMPLES_TO_ADAPT = 5
+COMBINED_MIN_STAKE_MULT = 0.4
+COMBINED_MAX_STAKE_MULT = 1.75
 
 
-def _kelly_stake(state, signal):
-    """Quarter-Kelly, sized off THIS strategy's own paper balance — reuses
-    the exact same formula/caps already built for real-money bet sizing
-    (confidence.py), just applied to a simulated bankroll instead."""
-    if state["balance"] < confidence.MIN_MEANINGFUL_BALANCE:
-        return 0.0
-    fraction = min(
-        confidence._kelly_fraction(signal["confidence"], signal["market_price"]),
-        confidence.MAX_STAKE_PCT_OF_BALANCE,
+def _flat_stake(state, signal, row, signal_type):
+    return FLAT_STAKE
+
+
+def _combined_adaptive_stake(state, signal, row, signal_type):
+    """`combined`'s own stake sizing: learns from this account's settled
+    history by scaling the stake to how well this exact (signal_type,
+    league) segment has performed so far, before a confirmed loser gets
+    fully paused upstream (_run_strategy's MIN_SEGMENT_SAMPLES gate)."""
+    settled = [b for b in state["bets"] if b["status"] != "pending"]
+    segment = next(
+        (
+            s
+            for s in _segment_performance(settled)
+            if s["signal_type"] == signal_type and s["league"] == row["league"]
+        ),
+        None,
     )
-    return round(fraction * state["balance"], 4)
+    if segment is None or segment["count"] < COMBINED_MIN_SAMPLES_TO_ADAPT:
+        return FLAT_STAKE
+    edge = segment["win_rate"] - 0.5  # -0.5 .. +0.5
+    multiplier = max(COMBINED_MIN_STAKE_MULT, min(COMBINED_MAX_STAKE_MULT, 1.0 + edge * 2.5))
+    return round(FLAT_STAKE * multiplier, 4)
 
 
 # Each strategy runs against the exact same incoming signals (this app's
-# existing underdog/lock/prop thresholds already applied upstream in
+# existing underdog/lock thresholds already applied upstream in
 # confidence.py — a strategy here can only ADD a stricter filter on top,
 # never loosen below what confidence.py already required, since anything
 # looser was already discarded before reaching paper_trading at all).
+# `stake_for(state, signal, row, signal_type)` — row/signal_type are only
+# used by `combined`'s adaptive sizing; the flat-stake strategies ignore them.
 STRATEGIES = {
-    "baseline": {
-        "label": "Baseline — current thresholds, flat $5 stake",
+    "underdogs": {
+        "label": "Underdogs only — flat $5 stake",
+        "filter_underdog": lambda s: True,
+        "filter_lock": lambda s: False,
+        "stake_for": _flat_stake,
+    },
+    "locks": {
+        "label": "Locks only — flat $5 stake",
+        "filter_underdog": lambda s: False,
+        "filter_lock": lambda s: True,
+        "stake_for": _flat_stake,
+    },
+    "combined": {
+        "label": "Combined — underdogs + locks, stake learns from this account's own track record",
         "filter_underdog": lambda s: True,
         "filter_lock": lambda s: True,
-        "filter_prop": lambda s: True,
-        "stake_for": lambda state, s: FLAT_STAKE,
-    },
-    "high_conviction": {
-        "label": "High conviction — stricter thresholds, flat $5 stake",
-        "filter_underdog": lambda s: s["edge"] >= 0.15,
-        "filter_lock": lambda s: s["confidence"] >= 0.90,
-        "filter_prop": lambda s: s["edge"] >= 0.15,
-        "stake_for": lambda state, s: FLAT_STAKE,
-    },
-    "kelly_sized": {
-        "label": "Kelly-sized — same signals as baseline, stake scaled by edge",
-        "filter_underdog": lambda s: True,
-        "filter_lock": lambda s: True,
-        "filter_prop": lambda s: True,
-        "stake_for": _kelly_stake,
+        "stake_for": _combined_adaptive_stake,
     },
 }
 
@@ -122,19 +147,16 @@ def _default_state():
 
 
 def _state_keys(strategy_id):
-    """(redis_key, local_key) for one strategy's state — "baseline" keeps
-    the original local filename (`paper_trades.json`, no `.json` suffix
-    duplicated by store.py) so its existing history isn't orphaned."""
-    local_key = "paper_trades" if strategy_id == "baseline" else f"paper_trades_{strategy_id}"
+    local_key = f"paper_trades_{strategy_id}"
     return f"polymarket-bet-calculator:paper_trades:{strategy_id}", local_key
 
 
-def _load_state(strategy_id="baseline"):
+def _load_state(strategy_id):
     redis_key, local_key = _state_keys(strategy_id)
     return store.load(redis_key, local_key, _default_state())
 
 
-def _save_state(state, strategy_id="baseline"):
+def _save_state(state, strategy_id):
     redis_key, local_key = _state_keys(strategy_id)
     store.save(redis_key, local_key, state)
 
@@ -143,7 +165,7 @@ def _already_bet(state, event_id, outcome):
     return any(b["event_id"] == event_id and b["outcome"] == outcome for b in state["bets"])
 
 
-def add_funds(amount, strategy_id="baseline"):
+def add_funds(amount, strategy_id):
     """Tops up one strategy's paper bankroll without touching existing
     bets/history — e.g. when it's run low on uncommitted cash but there are
     fresh signals worth tracking right now."""
@@ -168,15 +190,13 @@ def _place_one(state, row, signal, signal_type, stake=None):
         "league": row["league"],
         "title": row["title"],
         "outcome": signal["outcome"],
-        # What settle_pending_bets compares the real winning side against.
-        # Equal to `outcome` for moneyline bets (team name); for prop bets
-        # `outcome` is a human-readable label ("Game total Over 46.5") but
-        # the real market only ever resolves to "Over"/"Under", so prop
-        # signals supply this separately.
+        # What settle_pending_bets compares the real winning side against —
+        # equal to `outcome` for every moneyline bet (team name) this app
+        # places today, kept separate for forward-compatibility with any
+        # future signal type whose outcome label and resolution key differ.
         "settlement_key": signal.get("settlement_key", signal["outcome"]),
-        "token_id": signal.get("token_id"),  # prop bets only — which of the
-        # ladder's many parallel total-line markets this actually is.
-        "signal_type": signal_type,  # "underdog" | "lock" | "prop"
+        "token_id": signal.get("token_id"),
+        "signal_type": signal_type,  # "underdog" | "lock"
         "basis": signal.get("basis"),
         "confidence": signal["confidence"],
         "price": price,
@@ -192,21 +212,6 @@ def _place_one(state, row, signal, signal_type, stake=None):
     state["balance"] = round(state["balance"] - stake, 4)
     state["bets"].append(bet)
     return bet
-
-
-def _normalize_prop_signal(prop_bet):
-    """Adapts a row's `prop_bet` dict (confidence.attach_nfl_props's shape)
-    into the outcome/confidence/market_price shape `_place_one` expects,
-    same as underdog_bet/lock already are."""
-    return {
-        "outcome": f"{prop_bet['market']} {prop_bet['side']} {prop_bet['line']}",
-        "settlement_key": prop_bet["side"],
-        "confidence": prop_bet["model_prob"],
-        "market_price": prop_bet["market_price"],
-        "basis": "prop",
-        "token_id": prop_bet["token_id"],
-        "edge": prop_bet["edge"],
-    }
 
 
 def _segment_performance(settled_bets):
@@ -239,7 +244,7 @@ def _segment_performance(settled_bets):
     return result
 
 
-def _run_strategy(strategy_id, cfg, underdog_rows, lock_rows, prop_rows):
+def _run_strategy(strategy_id, cfg, underdog_rows, lock_rows):
     """Places new bets for one strategy against the current signal set,
     subject to the same two gates every strategy gets regardless of its own
     filter/stake rules:
@@ -273,29 +278,21 @@ def _run_strategy(strategy_id, cfg, underdog_rows, lock_rows, prop_rows):
             return False
         if pending_by_league[row["league"]] >= MAX_PENDING_PER_LEAGUE:
             return False
-        stake = cfg["stake_for"](state, signal)
+        stake = cfg["stake_for"](state, signal, row, signal_type)
         bet = _place_one(state, row, signal, signal_type, stake)
         if bet:
             placed.append(bet)
             pending_by_league[row["league"]] += 1
         return False
 
-    for row in underdog_rows:
+    for row in _soonest_first(underdog_rows):
         signal = row.get("underdog_bet")
         if signal and cfg["filter_underdog"](signal) and _try_place(row, signal, "underdog"):
             break
 
-    for row in lock_rows:
+    for row in _soonest_first(lock_rows):
         signal = row.get("lock")
         if signal and cfg["filter_lock"](signal) and _try_place(row, signal, "lock"):
-            break
-
-    for row in prop_rows:
-        prop = row.get("prop_bet")
-        if not prop:
-            continue
-        signal = _normalize_prop_signal(prop)
-        if cfg["filter_prop"](signal) and _try_place(row, signal, "prop"):
             break
 
     if placed:
@@ -303,138 +300,26 @@ def _run_strategy(strategy_id, cfg, underdog_rows, lock_rows, prop_rows):
     return placed
 
 
-def _odds_swing_candidates(rows):
-    """Any moneyline outcome currently priced in the deep-longshot entry
-    band — deliberately NOT edge-based, no model involved at all, unlike
-    every other signal in this app. This is a pure price-action play: the
-    model's opinion doesn't matter, only where the market itself has priced
-    a team right now. Scoped to moneyline only (row['outcomes'], the two
-    game-winner sides) — doesn't touch prop/total markets.
-
-    Pregame or live — Connor first restricted this to live games only (the
-    in-game-momentum framing), then explicitly reopened it to both when
-    resetting the whole paper-trading state under the new NFL/CFB/NBA/CBB
-    scope. A 3-4% price can come from a real pregame mismatch just as much
-    as a live swing; both are fair game for this strategy now."""
-    candidates = []
-    for row in rows:
-        for outcome in row.get("outcomes", []):
-            price = outcome.get("best_ask")
-            token_id = outcome.get("token_id")
-            if price is None or token_id is None:
-                continue
-            if ODDS_SWING_ENTRY_MIN <= price <= ODDS_SWING_ENTRY_MAX:
-                candidates.append(
-                    {
-                        "event_id": row["event_id"],
-                        "league": row["league"],
-                        "title": row["title"],
-                        "outcome": outcome["name"],
-                        "token_id": token_id,
-                        "price": price,
-                        "polymarket_url": row.get("polymarket_url"),
-                    }
-                )
-    return candidates
-
-
-def run_odds_swing_strategy(rows):
-    """Buy-low-sell-high, pregame or live, bounded to ODDS_SWING_MAX_TRIALS
-    total trades ever (Connor's explicit ask: try it 5 times, see if it
-    works, stop either way). Settles pending bets first — each one either
-    sells immediately once the live order book shows its sell target hit,
-    or (if not) rides along to the real game resolution exactly like every
-    other bet in this app — then places new entries, capped by the trial
-    limit, not by balance alone (so it can't quietly use up its 5 tries
-    faster than intended just because the bankroll allows more)."""
-    state = _load_state(ODDS_SWING_STRATEGY_ID)
-    changed = False
-
-    pending = [b for b in state["bets"] if b["status"] == "pending"]
-    if pending:
-        token_ids = [b["token_id"] for b in pending if b.get("token_id")]
-        try:
-            books = polymarket.fetch_books(token_ids) if token_ids else {}
-        except Exception:
-            books = {}
-        for bet in pending:
-            book = books.get(bet.get("token_id")) or {}
-            current_bid = book.get("best_bid")
-            if current_bid is not None and current_bid >= bet["price"] * ODDS_SWING_SELL_MULTIPLE:
-                payout = round(bet["shares"] * current_bid, 4)
-                bet["status"] = "sold"
-                bet["settled_at"] = datetime.now(timezone.utc).isoformat()
-                bet["payout"] = payout
-                bet["pnl"] = round(payout - bet["stake"], 4)
-                bet["exit_price"] = current_bid
-                state["balance"] = round(state["balance"] + payout, 4)
-                changed = True
-                continue
-            # Sell target not hit yet — did the real game resolve first?
-            try:
-                winner = polymarket.fetch_event_resolution(bet["event_id"])
-            except Exception:
-                continue
-            if winner is None:
-                continue
-            won = winner == bet["settlement_key"]
-            payout = round(bet["shares"], 4) if won else 0.0
-            bet["status"] = "won" if won else "lost"
-            bet["settled_at"] = datetime.now(timezone.utc).isoformat()
-            bet["payout"] = payout
-            bet["pnl"] = round(payout - bet["stake"], 4)
-            state["balance"] = round(state["balance"] + payout, 4)
-            changed = True
-
-    placed = []
-    if len(state["bets"]) < ODDS_SWING_MAX_TRIALS and state["balance"] >= MIN_BALANCE_TO_BET:
-        for candidate in _odds_swing_candidates(rows):
-            if len(state["bets"]) >= ODDS_SWING_MAX_TRIALS:
-                break
-            if _already_bet(state, candidate["event_id"], candidate["outcome"]):
-                continue
-            signal = {
-                "outcome": candidate["outcome"],
-                "settlement_key": candidate["outcome"],
-                "confidence": candidate["price"],  # no model here — this IS the market's own number
-                "market_price": candidate["price"],
-                "basis": "odds_swing",
-                "token_id": candidate["token_id"],
-            }
-            bet = _place_one(state, candidate, signal, "odds_swing", FLAT_STAKE)
-            if bet:
-                placed.append(bet)
-                changed = True
-
-    if changed:
-        _save_state(state, ODDS_SWING_STRATEGY_ID)
-    return placed
-
-
-def run_all_strategies(underdog_rows, lock_rows, prop_rows=None):
+def run_all_strategies(underdog_rows, lock_rows):
     """Runs every registered strategy (STRATEGIES) against the same signal
     set — the actual "keep searching for a winning strategy" loop: each
     strategy accumulates its own real settlement history independently, so
     comparing them (get_strategy_comparison) over enough settled bets is
     what actually answers the question, not any single tuning pass."""
-    prop_rows = prop_rows or []
     placed = {}
     for strategy_id, cfg in STRATEGIES.items():
-        placed[strategy_id] = _run_strategy(strategy_id, cfg, underdog_rows, lock_rows, prop_rows)
+        placed[strategy_id] = _run_strategy(strategy_id, cfg, underdog_rows, lock_rows)
     return placed
 
 
-def settle_pending_bets(strategy_id="baseline"):
+def settle_pending_bets(strategy_id):
     state = _load_state(strategy_id)
     changed = False
     for bet in state["bets"]:
         if bet["status"] != "pending":
             continue
         try:
-            if bet["signal_type"] == "prop":
-                winner = polymarket.fetch_prop_resolution(bet["event_id"], bet["token_id"])
-            else:
-                winner = polymarket.fetch_event_resolution(bet["event_id"])
+            winner = polymarket.fetch_event_resolution(bet["event_id"])
         except Exception:
             continue
         if winner is None:
@@ -452,17 +337,11 @@ def settle_pending_bets(strategy_id="baseline"):
     return state
 
 
-def get_summary(strategy_id="baseline"):
+def get_summary(strategy_id):
     state = settle_pending_bets(strategy_id)  # always catch up settlements before reporting
     bets = state["bets"]
     settled = [b for b in bets if b["status"] != "pending"]
     pending = [b for b in bets if b["status"] == "pending"]
-    # A profitable early "sold" exit (the odds-swing strategy) is as much a
-    # win as a resolved "won" bet — for every status the other three
-    # strategies ever produce, pnl > 0 and status == "won" are identical
-    # (a resolved bet's payout is either the full share value or zero), so
-    # this doesn't change their numbers at all, just correctly includes
-    # "sold" too.
     wins = [b for b in settled if b["pnl"] > 0]
 
     total_pnl = round(sum(b["pnl"] for b in settled), 4)
@@ -536,29 +415,6 @@ def get_strategy_comparison():
                 "pending_count": s["pending_count"],
             }
         )
-
-    # Odds-swing isn't in STRATEGIES — different mechanic (early exit on
-    # price, not hold-to-resolution) and a bounded one-shot trial rather
-    # than an ongoing strategy — but still belongs in the comparison view.
-    s = get_summary(ODDS_SWING_STRATEGY_ID)
-    starting = s["starting_balance"]
-    roi_pct = round((s["balance"] - starting) / starting * 100, 2) if starting else None
-    trials_used = s["settled_count"] + s["pending_count"]
-    comparison.append(
-        {
-            "strategy_id": ODDS_SWING_STRATEGY_ID,
-            "label": (
-                f"Odds swing — buy {int(ODDS_SWING_ENTRY_MIN*100)}-{int(ODDS_SWING_ENTRY_MAX*100)}%, "
-                f"sell at {ODDS_SWING_SELL_MULTIPLE}x (trial: {trials_used}/{ODDS_SWING_MAX_TRIALS})"
-            ),
-            "balance": s["balance"],
-            "roi_pct": roi_pct,
-            "total_pnl": s["total_pnl"],
-            "win_rate": s["win_rate"],
-            "settled_count": s["settled_count"],
-            "pending_count": s["pending_count"],
-        }
-    )
 
     comparison.sort(key=lambda c: (c["roi_pct"] is None, -(c["roi_pct"] or 0)))
     return comparison

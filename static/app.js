@@ -492,41 +492,14 @@ function buildBetHistory(bets) {
     </table>`;
 }
 
-function buildOddsSwingTable(bets) {
-  if (!bets || !bets.length) {
-    return '<div class="empty-state">No trades placed yet — waiting for a moneyline price to land in the 3-4% entry band.</div>';
-  }
-  const rows = bets
-    .map((b) => {
-      const pnlStr = b.pnl === null || b.pnl === undefined ? "—" : money(b.pnl);
-      const pnlClass = b.pnl > 0 ? "pnl-pos" : b.pnl < 0 ? "pnl-neg" : "";
-      const exitStr = b.status === "sold" ? `$${b.exit_price.toFixed(3)}` : b.status === "pending" ? "—" : "held to resolution";
-      return `
-      <tr>
-        <td><a href="${b.polymarket_url}" target="_blank" rel="noopener">${b.title}</a></td>
-        <td>${b.outcome}</td>
-        <td>$${b.price.toFixed(3)}</td>
-        <td>${exitStr}</td>
-        <td><span class="bet-status ${b.status}">${b.status}</span></td>
-        <td class="${pnlClass}">${pnlStr}</td>
-      </tr>`;
-    })
-    .join("");
-  return `
-    <table>
-      <thead><tr><th>Game</th><th>Bought</th><th>Entry price</th><th>Exit price</th><th>Status</th><th>P/L</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
-}
-
 function buildStrategyComparisonTable(strategies) {
   if (!strategies || !strategies.length) return "";
   const rows = strategies
     .map((s) => {
       const roiClass = s.roi_pct > 0 ? "pnl-pos" : s.roi_pct < 0 ? "pnl-neg" : "";
-      const isBaseline = s.strategy_id === "baseline";
+      const isCombined = s.strategy_id === "combined";
       return `
-      <tr${isBaseline ? ' class="strategy-row-baseline"' : ""}>
+      <tr${isCombined ? ' class="strategy-row-combined"' : ""}>
         <td>${s.label}</td>
         <td>$${s.balance.toFixed(2)}</td>
         <td class="${roiClass}">${s.roi_pct === null ? "—" : (s.roi_pct >= 0 ? "+" : "") + s.roi_pct.toFixed(1) + "%"}</td>
@@ -537,40 +510,55 @@ function buildStrategyComparisonTable(strategies) {
     })
     .join("");
   return `
-    <h3 class="sub-heading">Strategy comparison <span class="hint">(several strategies run side by side against the same signals — the only honest way to tell which actually works is real settled bets accumulating over weeks, not a quick tuning pass)</span></h3>
-    <div class="empty-state strategy-caveat">ROI here includes stake already committed to bets still pending (not yet won or lost) — a big negative number with few settled bets usually means "money deployed," not "money lost." Judge a strategy by its win rate and settled count, not ROI, until settled_count is well into the tens.</div>
+    <h3 class="sub-heading">Account comparison <span class="hint">(three accounts run side by side against the same signals — the only honest way to tell which actually works is real settled bets accumulating over weeks, not a quick tuning pass)</span></h3>
+    <div class="empty-state strategy-caveat">ROI here includes stake already committed to bets still pending (not yet won or lost) — a big negative number with few settled bets usually means "money deployed," not "money lost." Judge an account by its win rate and settled count, not ROI, until settled_count is well into the tens.</div>
     <table class="calibration-table">
-      <thead><tr><th>Strategy</th><th>Balance</th><th>ROI</th><th>Win rate</th><th># settled</th><th># pending</th></tr></thead>
+      <thead><tr><th>Account</th><th>Balance</th><th>ROI</th><th>Win rate</th><th># settled</th><th># pending</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
 }
+
+function buildAccountCard(strategyId, label, data) {
+  const total = data.total_pnl;
+  const stats = `
+    <div class="stat-tiles">
+      <div class="stat-tile"><div class="stat-value ${data.balance >= data.starting_balance ? "pnl-pos" : "pnl-neg"}">$${data.balance.toFixed(2)}</div><div class="stat-label">Current balance</div></div>
+      <div class="stat-tile"><div class="stat-value ${total >= 0 ? "pnl-pos" : "pnl-neg"}">${money(total)}</div><div class="stat-label">Realized P/L</div></div>
+      <div class="stat-tile"><div class="stat-value">${data.win_rate === null ? "—" : pct(data.win_rate)}</div><div class="stat-label">Win rate (${data.settled_count} settled)</div></div>
+      <div class="stat-tile"><div class="stat-value">${data.pending_count}</div><div class="stat-label">Pending bets</div></div>
+    </div>`;
+  return `
+    <div class="account-card" id="account-card-${strategyId}">
+      <h3 class="sub-heading account-card-title">${label}</h3>
+      ${stats}
+      <div class="pnl-chart-wrap">${buildBalanceChart(data.history)}</div>
+      <h4 class="sub-heading">Calibration — predicted confidence vs. actual win rate</h4>
+      ${buildCalibrationTable(data.calibration)}
+      <h4 class="sub-heading">Bet type performance <span class="hint">(paused after 10+ settled bets net-losing — frees that stake for bet types that are actually working)</span></h4>
+      ${buildSegmentTable(data.segment_performance || [])}
+      <h4 class="sub-heading">Bet history</h4>
+      ${buildBetHistory(data.bets)}
+    </div>`;
+}
+
+const ACCOUNT_ORDER = [
+  ["underdogs", "Underdogs only"],
+  ["locks", "Locks only"],
+  ["combined", "Combined — learns from losses"],
+];
 
 async function refreshPaperTrading() {
   const el = document.getElementById("paper-body");
   try {
     const resp = await fetch("/api/paper");
     const data = await resp.json();
-    latestPaperSummary = data;
-    const total = data.total_pnl;
-    const stats = `
-      <div class="stat-tiles">
-        <div class="stat-tile"><div class="stat-value ${data.balance >= data.starting_balance ? "pnl-pos" : "pnl-neg"}">$${data.balance.toFixed(2)}</div><div class="stat-label">Current balance</div></div>
-        <div class="stat-tile"><div class="stat-value ${total >= 0 ? "pnl-pos" : "pnl-neg"}">${money(total)}</div><div class="stat-label">Realized P/L</div></div>
-        <div class="stat-tile"><div class="stat-value">${data.win_rate === null ? "—" : pct(data.win_rate)}</div><div class="stat-label">Win rate (${data.settled_count} settled)</div></div>
-        <div class="stat-tile"><div class="stat-value">${data.pending_count}</div><div class="stat-label">Pending bets</div></div>
-      </div>`;
+    latestPaperSummary = data.accounts && data.accounts.combined;
+    const cards = ACCOUNT_ORDER.map(([id, label]) =>
+      data.accounts && data.accounts[id] ? buildAccountCard(id, label, data.accounts[id]) : ""
+    ).join("");
     el.innerHTML = `
-      ${stats}
-      <div class="pnl-chart-wrap">${buildBalanceChart(data.history)}</div>
       ${buildStrategyComparisonTable(data.strategy_comparison)}
-      <h3 class="sub-heading">Odds swing experiment <span class="hint">(pregame or live — buy a longshot at 3-4%, sell once the price rises; not model-based; bounded to 5 trades total, win or lose)</span></h3>
-      ${buildOddsSwingTable(data.odds_swing_bets)}
-      <h3 class="sub-heading">Calibration — predicted confidence vs. actual win rate</h3>
-      ${buildCalibrationTable(data.calibration)}
-      <h3 class="sub-heading">Bet type performance <span class="hint">(paused after 10+ settled bets net-losing — frees that stake for bet types that are actually working)</span></h3>
-      ${buildSegmentTable(data.segment_performance || [])}
-      <h3 class="sub-heading">Bet history</h3>
-      ${buildBetHistory(data.bets)}`;
+      ${cards}`;
   } catch (err) {
     el.innerHTML = '<div class="empty-state">Couldn\'t load paper trading data.</div>';
   }
@@ -705,7 +693,7 @@ function buildComparisonChart(capital, paperSummary) {
       <path d="${path}" fill="none" stroke="${lastPaper >= 0 ? "#2ee6a6" : "#ff5c72"}" stroke-width="2" vector-effect="non-scaling-stroke" />
     </svg>
     <div class="chart-axis-labels">
-      <span>Paper trading: ${lastPaper >= 0 ? "+" : ""}${lastPaper.toFixed(1)}%</span>
+      <span>Paper trading (combined account): ${lastPaper >= 0 ? "+" : ""}${lastPaper.toFixed(1)}%</span>
       <span>Your real account: ${capital.overall_return_pct >= 0 ? "+" : ""}${capital.overall_return_pct}% (dashed)</span>
     </div>
     <div class="chart-caption">

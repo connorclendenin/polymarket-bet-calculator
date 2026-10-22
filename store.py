@@ -100,3 +100,20 @@ def save(redis_key, local_key, data):
             json.dump(data, f, indent=2)
     except OSError:
         pass
+
+
+def delete(redis_key, local_key):
+    """Removes a key entirely (Redis, when configured, and the local file)
+    — e.g. retiring a renamed/removed strategy's state rather than leaving
+    it as orphaned data nothing reads anymore."""
+    if is_configured():
+        try:
+            resp = requests.post(f"{_UPSTASH_URL}/del/{redis_key}", headers=_HEADERS, timeout=10)
+            resp.raise_for_status()
+        except Exception as e:
+            print(f"[store] Upstash delete failed for key={redis_key!r}: {e!r}")
+
+    try:
+        os.remove(_local_path(local_key))
+    except FileNotFoundError:
+        pass

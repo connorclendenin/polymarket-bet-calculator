@@ -118,14 +118,31 @@ maximize returns.
 
 ## Paper trading — model accuracy test
 
-A simulated $100 bankroll, flat $5 stakes, that automatically bets on every
-"Smart underdog" and "Lock" signal this app produces (underdog signals get
-priority when the bankroll is tight), settles each bet against the real
-Polymarket market resolution, and reports P/L plus a **calibration table**:
-for bets the model called "80-90% confidence," did they actually win
-80-90% of the time? That's the real test of whether the confidence
-percentages mean anything. No real money, no real orders — purely reading
-public market data.
+Three independent simulated $100 bankrolls — `underdogs` (only "Smart
+underdog" signals), `locks` (only "Lock" signals), and `combined` (both
+signal types, with stake sizing that *learns from this account's own
+settled history* — see below) — that automatically bet on this app's own
+signals, settle each bet against the real Polymarket market resolution,
+and report P/L plus a **calibration table**: for bets the model called
+"80-90% confidence," did they actually win 80-90% of the time? That's the
+real test of whether the confidence percentages mean anything. No real
+money, no real orders — purely reading public market data.
+
+When more eligible signals exist than an account can act on (the per-league
+pending cap), the games that actually get bet on are the ones starting
+soonest (`paper_trading._soonest_first`) — results come back fast instead
+of sitting on far-future games.
+
+**How `combined` learns from losses:** every account already pauses a
+(signal_type, league) segment outright once it's lost money across 10+ of
+its own settled bets (`_segment_performance`'s `paused` flag — a real
+pattern, not one bad beat). `combined` goes further: below that pause
+threshold, its stake for a segment scales continuously with that segment's
+own win rate so far (`_combined_adaptive_stake`) — a segment that's been
+winning gets up to 1.75x the flat stake, one that's been losing gets as
+low as 0.4x, before ever reaching the hard pause. `underdogs` and `locks`
+stay flat-staked on purpose, as the control group `combined` is actually
+being compared against.
 
 **Runs two ways:** while the app is open (page polls `/api/paper` every
 30s), and independently via a scheduled GitHub Actions workflow
@@ -152,19 +169,18 @@ visibility) — real credentials only ever exist as GitHub/Vercel encrypted
 env vars, never committed. You can also trigger a run manually anytime
 from the repo's Actions tab ("Run workflow") instead of waiting.
 
-Four strategies run side by side: `baseline`, `high_conviction`, `kelly_sized`
-(see `paper_trading.py`'s `STRATEGIES`), and `odds_swing` (a separate,
-bounded buy-low-sell-high experiment on live games — see
-`run_odds_swing_strategy`, capped at 5 trades total, ever). Bets are placed
-from an all-leagues scan (independent of whatever league filter you have
-checked in the UI), then filtered down to `paper_trading.PAPER_TRADING_LEAGUES`
-(NFL/CFB/NBA/CBB — Connor's own predominant sports) before any paper-trading
-signal is derived — the rest of the app (Smart bets, Games grid, etc.) still
-covers every league; only new paper-trading placements are scoped narrower.
-Existing pending bets already placed in other leagues before this scoping
-aren't cancelled, they just settle out normally over time. State lives in
-`data/paper_trades.json` (baseline) and `data/paper_trades_<strategy>.json`
-(the others); delete one to reset that strategy's bankroll back to $100.
+The three accounts (see `paper_trading.py`'s `STRATEGIES`) run side by
+side. Bets are placed from an all-leagues scan (independent of whatever
+league filter you have checked in the UI), then filtered down to
+`paper_trading.PAPER_TRADING_LEAGUES` (NFL/CFB/NBA/CBB — Connor's own
+predominant sports) before any paper-trading signal is derived — the rest
+of the app (Smart bets, Games grid, etc.) still covers every league; only
+new paper-trading placements are scoped narrower. Existing pending bets
+already placed in other leagues before this scoping aren't cancelled, they
+just settle out normally over time. State lives in
+`data/paper_trades_<strategy_id>.json`; delete one (and its matching
+`polymarket-bet-calculator:paper_trades:<strategy_id>` Redis key, if
+deployed) to reset that account's bankroll back to $100.
 
 ## Deploy so you can view it from anywhere
 
@@ -225,9 +241,9 @@ before — nothing about local-only usage changes.
 - `performance.py` — reconstructs the realized-P/L time series from a
   wallet's Polymarket activity feed (trades, redemptions, rebates).
 - `paper_trading.py` — three independent simulated bankrolls (`STRATEGIES`),
-  each placing/settling/reporting on the underdog/lock/prop signals under
-  its own rules. `polymarket.fetch_event_resolution`/`fetch_prop_resolution`
-  read the real winner once Polymarket closes a market.
+  each placing/settling/reporting on the underdog/lock signals under its own
+  rules. `polymarket.fetch_event_resolution` reads the real winner once
+  Polymarket closes a market.
 - `store.py` — Redis-or-local-file persistence, shared by `paper_trading.py`
   (bankroll state) and `app.py` (cached scan results) — see "Deploy" above.
 - `paper_trade_cron.py` — standalone entrypoint (no Flask) for the scheduled
