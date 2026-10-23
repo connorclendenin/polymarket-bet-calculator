@@ -171,27 +171,6 @@
       "polymarket_url": "https://polymarket.com/event/cfb-niowa-sill-2026-10-24"
     },
     {
-      "id": "ef771c90b1",
-      "event_id": "1022440",
-      "league": "nfl",
-      "title": "Giants vs. Texans",
-      "outcome": "Giants",
-      "settlement_key": "Giants",
-      "token_id": null,
-      "signal_type": "underdog",
-      "basis": "pregame",
-      "confidence": 0.5705,
-      "price": 0.2,
-      "stake": 5.0,
-      "shares": 25.0,
-      "placed_at": "2026-10-22T23:46:03.227203+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/nfl-nyg-hou-2026-10-25"
-    },
-    {
       "id": "ff48067ac3",
       "event_id": "1022449",
       "league": "nfl",
@@ -253,6 +232,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nfl-dal-phi-2026-10-27"
+    },
+    {
+      "id": "00177c5a1e",
+      "event_id": "1004101",
+      "league": "nfl",
+      "title": "Patriots vs. Bears",
+      "outcome": "Patriots",
+      "settlement_key": "Patriots",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-10-23T00:15:00+00:00",
+      "basis": "live",
+      "confidence": 0.4275,
+      "price": 0.33,
+      "stake": 5.0,
+      "shares": 15.1515,
+      "placed_at": "2026-10-23T00:26:14.826669+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nfl-ne-chi-2026-10-23"
     }
   ]
 }
