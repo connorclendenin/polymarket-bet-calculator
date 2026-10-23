@@ -26,7 +26,7 @@ all — actually holds up.
 
 import uuid
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import polymarket
 import store
@@ -59,13 +59,53 @@ def _soonest_first(rows):
     Rows with no parseable start time sort last, never first."""
     return sorted(rows, key=lambda r: r.get("game_start") or "9999")
 
+
+# How far ahead "happening tonight" reaches — deliberately a rolling window
+# (hours from now), not a calendar-day check: a 10pm Eastern tipoff is
+# already "tomorrow" in UTC, and this app has no per-user timezone to
+# compare a calendar date against correctly.
+TONIGHT_WINDOW_HOURS = 18
+
+
+def _happening_soon(game_start_iso):
+    if not game_start_iso:
+        return False
+    try:
+        game_start = datetime.fromisoformat(game_start_iso)
+    except ValueError:
+        return False
+    return game_start <= datetime.now(timezone.utc) + timedelta(hours=TONIGHT_WINDOW_HOURS)
+
 # Caps how many simultaneous pending bets any one league can hold, so a
 # league that happens to throw off an unusually large batch of simultaneous
 # high-confidence signals on a given night (observed in practice: NHL on a
 # heavy slate) can't eat the whole bankroll before other sports' signals get
 # a turn. Existing bets already placed before this cap existed aren't
 # touched; it only gates new placements going forward.
+#
+# Connor's explicit ask: tonight's/live games should never sit crowded out
+# behind this cap by bets already placed on days-out games — if the cap is
+# full and a new signal is happening soon (_happening_soon), it bumps the
+# single furthest-out pending bet in that league that ISN'T happening soon
+# (voided, stake refunded) rather than being skipped. A cap full of
+# tonight's own games is never touched by this — only genuinely distant
+# bets ever get bumped, and only to make room for something more
+# time-sensitive.
 MAX_PENDING_PER_LEAGUE = 4
+
+
+def _bump_for_tonight(state, league):
+    candidates = [
+        b
+        for b in state["bets"]
+        if b["status"] == "pending" and b["league"] == league and not _happening_soon(b.get("game_start"))
+    ]
+    if not candidates:
+        return False
+    victim = max(candidates, key=lambda b: b.get("game_start") or "")
+    state["balance"] = round(state["balance"] + victim["stake"], 4)
+    state["bets"].remove(victim)
+    return True
 
 CONFIDENCE_BUCKETS = [(0.5, 0.6), (0.6, 0.7), (0.7, 0.8), (0.8, 0.9), (0.9, 1.01)]
 
@@ -197,6 +237,7 @@ def _place_one(state, row, signal, signal_type, stake=None):
         "settlement_key": signal.get("settlement_key", signal["outcome"]),
         "token_id": signal.get("token_id"),
         "signal_type": signal_type,  # "underdog" | "lock"
+        "game_start": row.get("game_start"),
         "basis": signal.get("basis"),
         "confidence": signal["confidence"],
         "price": price,
@@ -254,7 +295,10 @@ def _run_strategy(strategy_id, cfg, underdog_rows, lock_rows):
       state is independent, since they place different bets), and
     - a league that already holds MAX_PENDING_PER_LEAGUE of this strategy's
       own pending bets, so one league's glut of signals can't crowd out
-      every other sport within this strategy's bankroll.
+      every other sport within this strategy's bankroll — unless the new
+      signal is happening tonight, in which case it bumps the single
+      furthest-out non-tonight pending bet in that league instead of being
+      skipped (_bump_for_tonight).
     Settles this strategy's pending bets first, so placement decisions use
     the freshest balance/history available. Idempotent — safe to call on
     every scan."""
@@ -277,7 +321,11 @@ def _run_strategy(strategy_id, cfg, underdog_rows, lock_rows):
         if (signal_type, row["league"]) in paused:
             return False
         if pending_by_league[row["league"]] >= MAX_PENDING_PER_LEAGUE:
-            return False
+            if not _happening_soon(row.get("game_start")):
+                return False
+            if not _bump_for_tonight(state, row["league"]):
+                return False  # cap is full of tonight's own games too — nothing to give up
+            pending_by_league[row["league"]] -= 1
         stake = cfg["stake_for"](state, signal, row, signal_type)
         bet = _place_one(state, row, signal, signal_type, stake)
         if bet:
