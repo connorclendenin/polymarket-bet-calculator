@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 40.0,
+  "balance": 97.5,
   "bets": [
     {
       "id": "345ebf5b08",
@@ -18,10 +18,10 @@
       "stake": 5.0,
       "shares": 62.5,
       "placed_at": "2026-10-23T00:29:16.992430+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-10-23T05:24:10.188717+00:00",
+      "payout": 62.5,
+      "pnl": 57.5,
       "polymarket_url": "https://polymarket.com/event/nba-cle-phi-2026-10-22"
     },
     {
@@ -265,6 +265,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nfl-dal-phi-2026-10-27"
+    },
+    {
+      "id": "9f02afd75c",
+      "event_id": "1203774",
+      "league": "nba",
+      "title": "Grizzlies vs. Warriors",
+      "outcome": "Grizzlies",
+      "settlement_key": "Grizzlies",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-10-24T02:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.98,
+      "price": 0.43,
+      "stake": 5.0,
+      "shares": 11.6279,
+      "placed_at": "2026-10-23T05:24:11.298127+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-mem-gsw-2026-10-23"
     }
   ]
 }

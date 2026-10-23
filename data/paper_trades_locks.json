@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 40.0,
+  "balance": 36.7568,
   "bets": [
     {
       "id": "d6a641b966",
@@ -18,10 +18,10 @@
       "stake": 5.0,
       "shares": 6.7568,
       "placed_at": "2026-10-23T00:29:17.153782+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-10-23T05:24:11.523595+00:00",
+      "payout": 6.7568,
+      "pnl": 1.7568,
       "polymarket_url": "https://polymarket.com/event/nba-den-okc-2026-10-22"
     },
     {
@@ -260,11 +260,55 @@
       "stake": 5.0,
       "shares": 5.8824,
       "placed_at": "2026-10-23T00:37:29.284563+00:00",
+      "status": "lost",
+      "settled_at": "2026-10-23T05:24:12.502005+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
+      "polymarket_url": "https://polymarket.com/event/nba-cle-phi-2026-10-22"
+    },
+    {
+      "id": "4f9e179f84",
+      "event_id": "1208441",
+      "league": "nba",
+      "title": "Bucks vs. 76ers",
+      "outcome": "76ers",
+      "settlement_key": "76ers",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-10-24T23:30:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.9654,
+      "price": 0.84,
+      "stake": 5.0,
+      "shares": 5.9524,
+      "placed_at": "2026-10-23T05:24:12.602247+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
       "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/nba-cle-phi-2026-10-22"
+      "polymarket_url": "https://polymarket.com/event/nba-mil-phi-2026-10-24"
+    },
+    {
+      "id": "e717603254",
+      "event_id": "1215089",
+      "league": "nba",
+      "title": "Lakers vs. Jazz",
+      "outcome": "Lakers",
+      "settlement_key": "Lakers",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-10-25T21:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.98,
+      "price": 0.61,
+      "stake": 5.0,
+      "shares": 8.1967,
+      "placed_at": "2026-10-23T05:24:12.602298+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-lal-uta-2026-10-25"
     }
   ]
 }
