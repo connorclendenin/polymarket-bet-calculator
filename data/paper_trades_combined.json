@@ -91,28 +91,6 @@
       "polymarket_url": "https://polymarket.com/event/cfb-norfst-scarst-2026-10-24"
     },
     {
-      "id": "b89d69a5dd",
-      "event_id": "1178406",
-      "league": "cfb",
-      "title": "Stony Brook vs. Bryant",
-      "outcome": "Bryant",
-      "settlement_key": "Bryant",
-      "token_id": null,
-      "signal_type": "underdog",
-      "game_start": "2026-10-24T18:00:00+00:00",
-      "basis": "pregame",
-      "confidence": 0.6522,
-      "price": 0.44,
-      "stake": 5.0,
-      "shares": 11.3636,
-      "placed_at": "2026-10-23T00:29:17.317480+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/cfb-stbr-bryant-2026-10-24"
-    },
-    {
       "id": "ec7a657840",
       "event_id": "1178386",
       "league": "cfb",
@@ -331,6 +309,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nba-dal-ind-2026-10-23"
+    },
+    {
+      "id": "12384ad2a7",
+      "event_id": "1178306",
+      "league": "cfb",
+      "title": "Texas Tech vs. Cincinnati",
+      "outcome": "Texas Tech",
+      "settlement_key": "Texas Tech",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-10-24T16:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.9417,
+      "price": 0.8,
+      "stake": 5.0,
+      "shares": 6.25,
+      "placed_at": "2026-10-23T22:36:01.406404+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/cfb-txtech-cin-2026-10-24"
     }
   ]
 }

@@ -135,28 +135,6 @@
       "polymarket_url": "https://polymarket.com/event/cfb-bayl-kan-2026-10-24"
     },
     {
-      "id": "76035b2377",
-      "event_id": "1178387",
-      "league": "cfb",
-      "title": "Mercyhurst vs. Robert Morris",
-      "outcome": "Robert Morris",
-      "settlement_key": "Robert Morris",
-      "token_id": null,
-      "signal_type": "lock",
-      "game_start": "2026-10-24T18:00:00+00:00",
-      "basis": "pregame",
-      "confidence": 0.8182,
-      "price": 0.7,
-      "stake": 5.0,
-      "shares": 7.1429,
-      "placed_at": "2026-10-23T00:29:17.153873+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/cfb-mhud34ce7-robms-2026-10-24"
-    },
-    {
       "id": "82a4838def",
       "event_id": "1022435",
       "league": "nfl",
@@ -309,6 +287,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nba-lal-uta-2026-10-25"
+    },
+    {
+      "id": "0bbdec27f7",
+      "event_id": "1178306",
+      "league": "cfb",
+      "title": "Texas Tech vs. Cincinnati",
+      "outcome": "Texas Tech",
+      "settlement_key": "Texas Tech",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-10-24T16:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.9417,
+      "price": 0.8,
+      "stake": 5.0,
+      "shares": 6.25,
+      "placed_at": "2026-10-23T22:35:59.600660+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/cfb-txtech-cin-2026-10-24"
     }
   ]
 }
