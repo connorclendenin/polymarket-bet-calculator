@@ -365,19 +365,6 @@ def api_health():
     return jsonify({"status": "ok", "odds_configured": oddsapi.is_configured()})
 
 
-@app.route("/api/admin-reset-paper-trading", methods=["POST"])
-def api_admin_reset_paper_trading():
-    """Temporary, one-time — resets all three accounts to a clean $100
-    bankroll with no bets, on the deployed Redis store (no local Upstash
-    credential to do it any other way). Remove this route once it's been
-    hit once."""
-    reset = []
-    for strategy_id in paper_trading.STRATEGIES:
-        paper_trading._save_state(paper_trading._default_state(), strategy_id)
-        reset.append(strategy_id)
-    return jsonify({"reset": reset})
-
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5007))
     app.run(host="127.0.0.1", port=port, debug=True)
