@@ -47,28 +47,6 @@
       "polymarket_url": "https://polymarket.com/event/nba-nyk-bos-2026-10-23"
     },
     {
-      "id": "dc5fa01adf",
-      "event_id": "1203773",
-      "league": "nba",
-      "title": "Pelicans vs. Jazz",
-      "outcome": "Pelicans",
-      "settlement_key": "Pelicans",
-      "token_id": null,
-      "signal_type": "underdog",
-      "game_start": "2026-10-24T01:30:00+00:00",
-      "basis": "pregame",
-      "confidence": 0.6573,
-      "price": 0.44,
-      "stake": 5.0,
-      "shares": 11.3636,
-      "placed_at": "2026-10-23T00:29:17.317437+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/nba-nop-uta-2026-10-23"
-    },
-    {
       "id": "20bd3548fc",
       "event_id": "1178380",
       "league": "cfb",
@@ -265,6 +243,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nba-den-okc-2026-10-22"
+    },
+    {
+      "id": "74bb7c630a",
+      "event_id": "1197295",
+      "league": "nba",
+      "title": "Cavaliers vs. 76ers",
+      "outcome": "Cavaliers",
+      "settlement_key": "Cavaliers",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-10-22T23:00:00+00:00",
+      "basis": "live",
+      "confidence": 0.828,
+      "price": 0.85,
+      "stake": 5.0,
+      "shares": 5.8824,
+      "placed_at": "2026-10-23T00:37:29.910380+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-cle-phi-2026-10-22"
     }
   ]
 }
