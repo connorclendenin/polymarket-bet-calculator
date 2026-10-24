@@ -267,28 +267,6 @@
       "polymarket_url": "https://polymarket.com/event/nba-mil-phi-2026-10-24"
     },
     {
-      "id": "e717603254",
-      "event_id": "1215089",
-      "league": "nba",
-      "title": "Lakers vs. Jazz",
-      "outcome": "Lakers",
-      "settlement_key": "Lakers",
-      "token_id": null,
-      "signal_type": "lock",
-      "game_start": "2026-10-25T21:00:00+00:00",
-      "basis": "pregame",
-      "confidence": 0.98,
-      "price": 0.61,
-      "stake": 5.0,
-      "shares": 8.1967,
-      "placed_at": "2026-10-23T05:24:12.602298+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/nba-lal-uta-2026-10-25"
-    },
-    {
       "id": "0bbdec27f7",
       "event_id": "1178306",
       "league": "cfb",
@@ -309,6 +287,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/cfb-txtech-cin-2026-10-24"
+    },
+    {
+      "id": "0d93e5b8cb",
+      "event_id": "1202605",
+      "league": "nba",
+      "title": "Pistons vs. Heat",
+      "outcome": "Pistons",
+      "settlement_key": "Pistons",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-10-24T00:00:00+00:00",
+      "basis": "live",
+      "confidence": 0.9741,
+      "price": 0.76,
+      "stake": 5.0,
+      "shares": 6.5789,
+      "placed_at": "2026-10-24T01:04:27.864790+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-det-mia-2026-10-23"
     }
   ]
 }
