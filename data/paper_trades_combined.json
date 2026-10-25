@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 68.6104,
+  "balance": 67.7179,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -465,28 +465,6 @@
       "polymarket_url": "https://polymarket.com/event/nba-det-phi-2026-10-25"
     },
     {
-      "id": "e3e7d3b9c1",
-      "event_id": "1220871",
-      "league": "nba",
-      "title": "Bulls vs. Celtics",
-      "outcome": "Bulls",
-      "settlement_key": "Bulls",
-      "token_id": null,
-      "signal_type": "underdog",
-      "game_start": "2026-10-26T23:30:00+00:00",
-      "basis": "pregame",
-      "confidence": 0.2288,
-      "price": 0.15,
-      "stake": 4.1075,
-      "shares": 27.3833,
-      "placed_at": "2026-10-25T04:12:08.932073+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/nba-chi-bos-2026-10-26"
-    },
-    {
       "id": "664b49d5e8",
       "event_id": "1220251",
       "league": "cfb",
@@ -595,6 +573,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nba-lal-uta-2026-10-25"
+    },
+    {
+      "id": "f1cb1da209",
+      "event_id": "1215093",
+      "league": "nba",
+      "title": "Clippers vs. Thunder",
+      "outcome": "Thunder",
+      "settlement_key": "Thunder",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-10-25T23:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8332,
+      "price": 0.9,
+      "stake": 5.0,
+      "shares": 5.5556,
+      "placed_at": "2026-10-25T09:13:12.961630+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-lac-okc-2026-10-25"
     }
   ]
 }

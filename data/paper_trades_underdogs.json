@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 80.3184,
+  "balance": 75.3184,
   "bets": [
     {
       "id": "345ebf5b08",
@@ -348,10 +348,10 @@
       "stake": 5.0,
       "shares": 26.3158,
       "placed_at": "2026-10-24T05:47:41.976306+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-10-25T08:43:28.346798+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nba-nop-den-2026-10-24"
     },
     {
@@ -529,6 +529,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/cfb-nw-ore-2026-10-31"
+    },
+    {
+      "id": "eb3c94ddf0",
+      "event_id": "1220870",
+      "league": "nba",
+      "title": "Timberwolves vs. Cavaliers",
+      "outcome": "Timberwolves",
+      "settlement_key": "Timberwolves",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-10-26T23:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.9516,
+      "price": 0.46,
+      "stake": 5.0,
+      "shares": 10.8696,
+      "placed_at": "2026-10-25T09:13:10.561904+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-min-cle-2026-10-26"
     }
   ]
 }
