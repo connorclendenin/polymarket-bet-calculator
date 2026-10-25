@@ -29,6 +29,7 @@ from collections import Counter
 from datetime import datetime, timedelta, timezone
 
 import polymarket
+import rankings
 import store
 
 STARTING_BALANCE = 100.0
@@ -48,6 +49,18 @@ PAPER_TRADING_LEAGUES = {"nfl", "nba", "cbb", "cfb"}
 
 def _restrict_to_paper_trading_leagues(rows):
     return [r for r in rows if r["league"] in PAPER_TRADING_LEAGUES]
+
+
+def _allowed_for_paper_trading(row):
+    """Connor's explicit ask: most of his CFB paper-trading losses were on
+    unranked teams — small/mid-major games where this app's CFB signal (no
+    real team-stats feed behind it, unlike NFL/NBA — see stats.py) is least
+    reliable. NCAAF bets are now gated to games where at least one side is
+    currently AP Top 25 ranked; every other league is untouched."""
+    if row["league"] != "cfb":
+        return True
+    team_names = [o["name"] for o in row.get("outcomes", [])]
+    return rankings.is_ranked_matchup(team_names)
 
 
 def _soonest_first(rows):
@@ -287,8 +300,10 @@ def _segment_performance(settled_bets):
 
 def _run_strategy(strategy_id, cfg, underdog_rows, lock_rows):
     """Places new bets for one strategy against the current signal set,
-    subject to the same two gates every strategy gets regardless of its own
+    subject to the same gates every strategy gets regardless of its own
     filter/stake rules:
+    - CFB games must be a ranked matchup (_allowed_for_paper_trading); every
+      other league is untouched,
     - a (signal_type, league) combo currently flagged `paused` by this
       strategy's own _segment_performance (it has lost money across enough
       of ITS OWN settled bets to trust the pattern — each strategy's pause
@@ -316,6 +331,8 @@ def _run_strategy(strategy_id, cfg, underdog_rows, lock_rows):
         a bet actually got placed."""
         if state["balance"] < MIN_BALANCE_TO_BET:
             return True
+        if not _allowed_for_paper_trading(row):
+            return False
         if _already_bet(state, row["event_id"], signal["outcome"]):
             return False
         if (signal_type, row["league"]) in paused:
