@@ -365,35 +365,6 @@ def api_health():
     return jsonify({"status": "ok", "odds_configured": oddsapi.is_configured()})
 
 
-@app.route("/api/admin-void-unranked-cfb", methods=["POST"])
-def api_admin_void_unranked_cfb():
-    """Temporary, one-time — voids (refunds stake, removes) any currently
-    pending CFB bet that isn't a ranked matchup, across all three accounts.
-    These predate the Top-25 gate added to paper_trading.py; new bets are
-    already correctly filtered, this just cleans up what's already pending
-    from before the gate existed. Remove this route once it's been hit
-    once."""
-    import rankings
-
-    voided = []
-    for strategy_id in paper_trading.STRATEGIES:
-        state = paper_trading._load_state(strategy_id)
-        changed = False
-        for bet in list(state["bets"]):
-            if bet["status"] != "pending" or bet["league"] != "cfb":
-                continue
-            team_names = [t.strip() for t in bet["title"].split(" vs. ")]
-            if rankings.is_ranked_matchup(team_names):
-                continue
-            state["balance"] = round(state["balance"] + bet["stake"], 4)
-            state["bets"].remove(bet)
-            changed = True
-            voided.append({"strategy_id": strategy_id, "title": bet["title"]})
-        if changed:
-            paper_trading._save_state(state, strategy_id)
-    return jsonify({"voided": voided})
-
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5007))
     app.run(host="127.0.0.1", port=port, debug=True)
