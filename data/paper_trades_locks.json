@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 29.7272,
+  "balance": 32.1899,
   "bets": [
     {
       "id": "d6a641b966",
@@ -326,10 +326,10 @@
       "stake": 5.0,
       "shares": 7.4627,
       "placed_at": "2026-10-24T05:47:43.169252+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-10-26T00:23:22.649420+00:00",
+      "payout": 7.4627,
+      "pnl": 2.4627,
       "polymarket_url": "https://polymarket.com/event/nba-lal-uta-2026-10-25"
     },
     {
@@ -617,6 +617,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nfl-kc-den-2026-11-01"
+    },
+    {
+      "id": "d623ee29b4",
+      "event_id": "1215094",
+      "league": "nba",
+      "title": "Pistons vs. 76ers",
+      "outcome": "Pistons",
+      "settlement_key": "Pistons",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-10-25T23:30:00+00:00",
+      "basis": "live",
+      "confidence": 0.9158,
+      "price": 0.78,
+      "stake": 5.0,
+      "shares": 6.4103,
+      "placed_at": "2026-10-26T00:23:25.559616+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-det-phi-2026-10-25"
     }
   ]
 }

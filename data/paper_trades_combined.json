@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 79.6623,
+  "balance": 77.8012,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -568,10 +568,10 @@
       "stake": 5.0,
       "shares": 7.2464,
       "placed_at": "2026-10-25T04:12:08.932406+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-10-26T00:23:25.877219+00:00",
+      "payout": 7.2464,
+      "pnl": 2.2464,
       "polymarket_url": "https://polymarket.com/event/nba-lal-uta-2026-10-25"
     },
     {
@@ -612,10 +612,10 @@
       "stake": 5.0,
       "shares": 10.6383,
       "placed_at": "2026-10-25T22:07:26.225096+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-10-26T00:23:25.906854+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nfl-gb-det-2026-10-25"
     },
     {
@@ -683,6 +683,50 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nfl-min-det-2026-11-01"
+    },
+    {
+      "id": "03d80af23d",
+      "event_id": "1215093",
+      "league": "nba",
+      "title": "Clippers vs. Thunder",
+      "outcome": "Clippers",
+      "settlement_key": "Clippers",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-10-25T23:00:00+00:00",
+      "basis": "live",
+      "confidence": 0.3957,
+      "price": 0.13,
+      "stake": 4.1075,
+      "shares": 31.5962,
+      "placed_at": "2026-10-26T00:23:26.409593+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-lac-okc-2026-10-25"
+    },
+    {
+      "id": "2f54116f34",
+      "event_id": "1158894",
+      "league": "nfl",
+      "title": "Panthers vs. Packers",
+      "outcome": "Panthers",
+      "settlement_key": "Panthers",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-10-30T00:15:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.4537,
+      "price": 0.35,
+      "stake": 5.0,
+      "shares": 14.2857,
+      "placed_at": "2026-10-26T00:23:26.409756+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nfl-car-gb-2026-10-30"
     }
   ]
 }
