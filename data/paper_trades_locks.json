@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 37.9027,
+  "balance": 49.2723,
   "bets": [
     {
       "id": "d6a641b966",
@@ -436,10 +436,10 @@
       "stake": 5.0,
       "shares": 5.814,
       "placed_at": "2026-10-25T04:12:08.567153+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-10-27T06:09:57.498013+00:00",
+      "payout": 5.814,
+      "pnl": 0.814,
       "polymarket_url": "https://polymarket.com/event/nba-phx-okc-2026-10-26"
     },
     {
@@ -656,10 +656,10 @@
       "stake": 5.0,
       "shares": 8.1967,
       "placed_at": "2026-10-26T05:09:12.901013+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-10-27T06:09:57.707056+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nba-ind-mil-2026-10-26"
     },
     {
@@ -678,10 +678,10 @@
       "stake": 5.0,
       "shares": 6.8493,
       "placed_at": "2026-10-26T05:09:12.901040+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-10-27T06:09:57.736997+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nba-gsw-den-2026-10-26"
     },
     {
@@ -700,10 +700,10 @@
       "stake": 5.0,
       "shares": 5.5556,
       "placed_at": "2026-10-27T00:56:50.919238+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-10-27T06:09:57.737025+00:00",
+      "payout": 5.5556,
+      "pnl": 0.5556,
       "polymarket_url": "https://polymarket.com/event/nba-was-cha-2026-10-26"
     }
   ]
