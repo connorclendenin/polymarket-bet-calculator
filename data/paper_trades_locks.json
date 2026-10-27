@@ -685,26 +685,26 @@
       "polymarket_url": "https://polymarket.com/event/nba-gsw-den-2026-10-26"
     },
     {
-      "id": "05d014b230",
-      "event_id": "1226977",
+      "id": "0ca6e4fa52",
+      "event_id": "1220869",
       "league": "nba",
-      "title": "Nets vs. Celtics",
-      "outcome": "Celtics",
-      "settlement_key": "Celtics",
+      "title": "Wizards vs. Hornets",
+      "outcome": "Hornets",
+      "settlement_key": "Hornets",
       "token_id": null,
       "signal_type": "lock",
-      "game_start": "2026-10-27T23:30:00+00:00",
-      "basis": "pregame",
-      "confidence": 0.907,
-      "price": 0.83,
+      "game_start": "2026-10-26T23:00:00+00:00",
+      "basis": "live",
+      "confidence": 0.8533,
+      "price": 0.9,
       "stake": 5.0,
-      "shares": 6.0241,
-      "placed_at": "2026-10-26T05:09:12.901058+00:00",
+      "shares": 5.5556,
+      "placed_at": "2026-10-27T00:56:50.919238+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
       "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/nba-bkn-bos-2026-10-27"
+      "polymarket_url": "https://polymarket.com/event/nba-was-cha-2026-10-26"
     }
   ]
 }
