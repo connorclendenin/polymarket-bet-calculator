@@ -127,29 +127,31 @@ CONFIDENCE_BUCKETS = [(0.5, 0.6), (0.6, 0.7), (0.7, 0.8), (0.8, 0.9), (0.9, 1.01
 # below this count nothing is ever paused, however it's done so far.
 MIN_SEGMENT_SAMPLES = 10
 
-# `combined`'s own learning knobs. Below COMBINED_MIN_SAMPLES_TO_ADAPT
-# settled bets in a (signal_type, league) segment there's no real track
-# record yet, so it bets at the flat baseline; above that, stake scales
-# with that segment's own win rate — win_rate 0.5 (coin flip) -> 1.0x
-# (baseline), 0.75 -> 1.5x, 0.25 -> 0.5x, clamped to the two bounds below.
-# This is deliberately a small, inspectable rule (not a trained model): bet
-# bigger where this account has actually been right, smaller where it
-# hasn't, and let MIN_SEGMENT_SAMPLES's existing hard pause (above) take
-# over entirely once a segment is a confirmed loser.
-COMBINED_MIN_SAMPLES_TO_ADAPT = 5
-COMBINED_MIN_STAKE_MULT = 0.4
-COMBINED_MAX_STAKE_MULT = 1.75
+# Shared learning knobs for any strategy that sizes its stake adaptively
+# (`combined`, and `locks` since Connor's explicit ask to size locks bets
+# the same way). Below ADAPTIVE_MIN_SAMPLES settled bets in a
+# (signal_type, league) segment there's no real track record yet, so it
+# bets at the flat baseline; above that, stake scales with that segment's
+# own win rate — win_rate 0.5 (coin flip) -> 1.0x (baseline), 0.75 -> 1.5x,
+# 0.25 -> 0.5x, clamped to the two bounds below. This is deliberately a
+# small, inspectable rule (not a trained model): bet bigger where this
+# account has actually been right, smaller where it hasn't, and let
+# MIN_SEGMENT_SAMPLES's existing hard pause (above) take over entirely
+# once a segment is a confirmed loser.
+ADAPTIVE_MIN_SAMPLES = 5
+ADAPTIVE_MIN_STAKE_MULT = 0.4
+ADAPTIVE_MAX_STAKE_MULT = 1.75
 
 
 def _flat_stake(state, signal, row, signal_type):
     return FLAT_STAKE
 
 
-def _combined_adaptive_stake(state, signal, row, signal_type):
-    """`combined`'s own stake sizing: learns from this account's settled
-    history by scaling the stake to how well this exact (signal_type,
-    league) segment has performed so far, before a confirmed loser gets
-    fully paused upstream (_run_strategy's MIN_SEGMENT_SAMPLES gate)."""
+def _adaptive_stake(state, signal, row, signal_type):
+    """Learns from this account's settled history by scaling the stake to
+    how well this exact (signal_type, league) segment has performed so
+    far, before a confirmed loser gets fully paused upstream
+    (_run_strategy's MIN_SEGMENT_SAMPLES gate)."""
     settled = [b for b in state["bets"] if b["status"] != "pending"]
     segment = next(
         (
@@ -159,11 +161,75 @@ def _combined_adaptive_stake(state, signal, row, signal_type):
         ),
         None,
     )
-    if segment is None or segment["count"] < COMBINED_MIN_SAMPLES_TO_ADAPT:
+    if segment is None or segment["count"] < ADAPTIVE_MIN_SAMPLES:
         return FLAT_STAKE
     edge = segment["win_rate"] - 0.5  # -0.5 .. +0.5
-    multiplier = max(COMBINED_MIN_STAKE_MULT, min(COMBINED_MAX_STAKE_MULT, 1.0 + edge * 2.5))
+    multiplier = max(ADAPTIVE_MIN_STAKE_MULT, min(ADAPTIVE_MAX_STAKE_MULT, 1.0 + edge * 2.5))
     return round(FLAT_STAKE * multiplier, 4)
+
+
+# `locks`'s own live dip-buying — Connor's explicit ask: a lock-caliber
+# team is still bet immediately when it first qualifies pregame (unchanged
+# default behavior), but once a game is live, `locks` holds off and only
+# bets once the price has dropped at least this much from the earliest
+# price ever observed for that exact outcome — the same team, cheaper than
+# it opened, for a better payout at the same win probability.
+LOCKS_LIVE_DIP_THRESHOLD = 0.03  # 3+ cents, Connor's own example
+
+_PRICE_WATCH_REDIS_KEY = "polymarket-bet-calculator:locks_price_watch"
+_PRICE_WATCH_LOCAL_KEY = "locks_price_watch"
+_PRICE_WATCH_MAX_AGE_HOURS = 72  # prunes itself; a game is long resolved by then
+
+
+def update_price_watch(rows):
+    """Tracks the earliest-ever-seen price for every outcome in every
+    paper-trading-league game — not just lock candidates, since the whole
+    point is having a real "before" price for a team even before it
+    becomes a lock. Call once per scan, before placing any bets. Entries
+    are immutable once set (the first price seen is "before", forever) and
+    self-prune after _PRICE_WATCH_MAX_AGE_HOURS."""
+    redis_key, local_key = _PRICE_WATCH_REDIS_KEY, _PRICE_WATCH_LOCAL_KEY
+    watch = store.load(redis_key, local_key, {})
+    now = datetime.now(timezone.utc)
+    changed = False
+
+    for row in rows:
+        for outcome in row.get("outcomes", []):
+            price = outcome.get("best_ask")
+            if price is None:
+                continue
+            key = f"{row['event_id']}:{outcome['name']}"
+            if key not in watch:
+                watch[key] = {"price": price, "seen_at": now.isoformat()}
+                changed = True
+
+    cutoff = now - timedelta(hours=_PRICE_WATCH_MAX_AGE_HOURS)
+    stale = [k for k, v in watch.items() if datetime.fromisoformat(v["seen_at"]) < cutoff]
+    for k in stale:
+        del watch[k]
+        changed = True
+
+    if changed:
+        store.save(redis_key, local_key, watch)
+    return watch
+
+
+def _locks_live_entry_gate(row, signal, watch):
+    """Pregame: always allow (bet immediately, same as always). Live: only
+    allow once the current price has dropped LOCKS_LIVE_DIP_THRESHOLD
+    below the earliest price this outcome was ever seen at. No tracked
+    history (the game was already live the first time this app ever saw
+    it) falls back to allowing it — there's nothing to compare against."""
+    if row.get("status") != "live":
+        return True
+    first = watch.get(f"{row['event_id']}:{signal['outcome']}")
+    if not first:
+        return True
+    return first["price"] - signal["market_price"] >= LOCKS_LIVE_DIP_THRESHOLD
+
+
+def _always_allowed(row, signal, watch):
+    return True
 
 
 # Each strategy runs against the exact same incoming signals (this app's
@@ -172,25 +238,30 @@ def _combined_adaptive_stake(state, signal, row, signal_type):
 # never loosen below what confidence.py already required, since anything
 # looser was already discarded before reaching paper_trading at all).
 # `stake_for(state, signal, row, signal_type)` — row/signal_type are only
-# used by `combined`'s adaptive sizing; the flat-stake strategies ignore them.
+# used by the adaptive strategies' sizing; flat-stake strategies ignore them.
+# `extra_lock_gate(row, signal, watch)` — an additional gate lock signals
+# must pass beyond `filter_lock`; only `locks` uses it for anything.
 STRATEGIES = {
     "underdogs": {
         "label": "Underdogs only — flat $5 stake",
         "filter_underdog": lambda s: True,
         "filter_lock": lambda s: False,
         "stake_for": _flat_stake,
+        "extra_lock_gate": _always_allowed,
     },
     "locks": {
-        "label": "Locks only — flat $5 stake",
+        "label": "Locks only — stake learns from this account's own track record, live dip-buying",
         "filter_underdog": lambda s: False,
         "filter_lock": lambda s: True,
-        "stake_for": _flat_stake,
+        "stake_for": _adaptive_stake,
+        "extra_lock_gate": _locks_live_entry_gate,
     },
     "combined": {
         "label": "Combined — underdogs + locks, stake learns from this account's own track record",
         "filter_underdog": lambda s: True,
         "filter_lock": lambda s: True,
-        "stake_for": _combined_adaptive_stake,
+        "stake_for": _adaptive_stake,
+        "extra_lock_gate": _always_allowed,
     },
 }
 
@@ -298,12 +369,14 @@ def _segment_performance(settled_bets):
     return result
 
 
-def _run_strategy(strategy_id, cfg, underdog_rows, lock_rows):
+def _run_strategy(strategy_id, cfg, underdog_rows, lock_rows, watch):
     """Places new bets for one strategy against the current signal set,
     subject to the same gates every strategy gets regardless of its own
     filter/stake rules:
     - CFB games must be a ranked matchup (_allowed_for_paper_trading); every
       other league is untouched,
+    - a lock signal must also pass this strategy's own `extra_lock_gate`
+      (only `locks` uses this for anything — its live dip-buying),
     - a (signal_type, league) combo currently flagged `paused` by this
       strategy's own _segment_performance (it has lost money across enough
       of ITS OWN settled bets to trust the pattern — each strategy's pause
@@ -357,7 +430,12 @@ def _run_strategy(strategy_id, cfg, underdog_rows, lock_rows):
 
     for row in _soonest_first(lock_rows):
         signal = row.get("lock")
-        if signal and cfg["filter_lock"](signal) and _try_place(row, signal, "lock"):
+        if (
+            signal
+            and cfg["filter_lock"](signal)
+            and cfg["extra_lock_gate"](row, signal, watch)
+            and _try_place(row, signal, "lock")
+        ):
             break
 
     if placed:
@@ -365,15 +443,20 @@ def _run_strategy(strategy_id, cfg, underdog_rows, lock_rows):
     return placed
 
 
-def run_all_strategies(underdog_rows, lock_rows):
+def run_all_strategies(all_rows, underdog_rows, lock_rows):
     """Runs every registered strategy (STRATEGIES) against the same signal
     set — the actual "keep searching for a winning strategy" loop: each
     strategy accumulates its own real settlement history independently, so
     comparing them (get_strategy_comparison) over enough settled bets is
-    what actually answers the question, not any single tuning pass."""
+    what actually answers the question, not any single tuning pass.
+
+    `all_rows` is every paper-trading-league row, not just ones with a
+    qualifying signal — update_price_watch needs to see a team's price
+    before it becomes a lock, not just once it already is one."""
+    watch = update_price_watch(all_rows)
     placed = {}
     for strategy_id, cfg in STRATEGIES.items():
-        placed[strategy_id] = _run_strategy(strategy_id, cfg, underdog_rows, lock_rows)
+        placed[strategy_id] = _run_strategy(strategy_id, cfg, underdog_rows, lock_rows, watch)
     return placed
 
 

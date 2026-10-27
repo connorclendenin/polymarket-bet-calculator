@@ -23,7 +23,7 @@ def main():
 
     paper_rows = paper_trading._restrict_to_paper_trading_leagues(rows)
     _, _, underdog_rows, lock_rows, _ = app_module._ranked_signal_lists(paper_rows)
-    placed = paper_trading.run_all_strategies(underdog_rows, lock_rows)
+    placed = paper_trading.run_all_strategies(paper_rows, underdog_rows, lock_rows)
 
     total_placed = sum(len(bets) for bets in placed.values())
     print(f"scanned {len(rows)} games, placed {total_placed} new bet(s)")
