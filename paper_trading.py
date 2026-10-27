@@ -232,6 +232,19 @@ def _always_allowed(row, signal, watch):
     return True
 
 
+def _locks_stake(state, signal, row, signal_type):
+    """`locks`'s own stake rule: the normal adaptive "base bet" pregame
+    (same as combined), but a flat FLAT_STAKE for a live dip-buy entry —
+    Connor's explicit ask to keep those smaller/more conservative than the
+    learned pregame sizing, since a live dip is a different, more
+    opportunistic kind of entry. `_locks_live_entry_gate` already ensures
+    a live lock bet is always a genuine dip-buy, so "live" alone is enough
+    to tell the two apart here."""
+    if row.get("status") == "live":
+        return FLAT_STAKE
+    return _adaptive_stake(state, signal, row, signal_type)
+
+
 # Each strategy runs against the exact same incoming signals (this app's
 # existing underdog/lock thresholds already applied upstream in
 # confidence.py — a strategy here can only ADD a stricter filter on top,
@@ -250,10 +263,10 @@ STRATEGIES = {
         "extra_lock_gate": _always_allowed,
     },
     "locks": {
-        "label": "Locks only — stake learns from this account's own track record, live dip-buying",
+        "label": "Locks only — base bet learns from track record pregame, flat $5 on a live dip",
         "filter_underdog": lambda s: False,
         "filter_lock": lambda s: True,
-        "stake_for": _adaptive_stake,
+        "stake_for": _locks_stake,
         "extra_lock_gate": _locks_live_entry_gate,
     },
     "combined": {

@@ -136,22 +136,25 @@ of sitting on far-future games.
 **How `combined` and `locks` learn from losses:** every account already
 pauses a (signal_type, league) segment outright once it's lost money
 across 10+ of its own settled bets (`_segment_performance`'s `paused`
-flag — a real pattern, not one bad beat). `combined` and `locks` go
-further: below that pause threshold, stake for a segment scales
-continuously with that segment's own win rate so far (`_adaptive_stake`)
-— a segment that's been winning gets up to 1.75x the flat stake, one
-that's been losing gets as low as 0.4x, before ever reaching the hard
-pause. `underdogs` stays flat-staked on purpose, as a control the other
-two are actually being compared against.
+flag — a real pattern, not one bad beat). `combined`'s stake, and
+`locks`'s pregame stake, go further: below that pause threshold, stake
+for a segment scales continuously with that segment's own win rate so far
+(`_adaptive_stake`) — a segment that's been winning gets up to 1.75x the
+flat stake, one that's been losing gets as low as 0.4x, before ever
+reaching the hard pause. `underdogs` stays flat-staked on purpose, as a
+control the other two are actually being compared against.
 
 **`locks`'s live dip-buying:** a lock-caliber team is still bet
-immediately when it first qualifies pregame — unchanged default behavior.
-But once a game goes live, `locks` holds off and only bets once the price
-has dropped at least 3 cents (`LOCKS_LIVE_DIP_THRESHOLD`) from the
-earliest price ever observed for that exact outcome
-(`update_price_watch`/`_locks_live_entry_gate`) — the same team, cheaper
-than it opened, for a better payout at the same win probability. A
-lightweight price-watch cache (`data/locks_price_watch.json` locally,
+immediately when it first qualifies pregame, at the learned adaptive
+size above — unchanged default behavior. But once a game goes live,
+`locks` holds off and only bets once the price has dropped at least 3
+cents (`LOCKS_LIVE_DIP_THRESHOLD`) from the earliest price ever observed
+for that exact outcome (`update_price_watch`/`_locks_live_entry_gate`) —
+the same team, cheaper than it opened, for a better payout at the same
+win probability. That live dip entry is deliberately a flat $5
+(`_locks_stake`), not the learned size — a more conservative, opportunistic
+bet, kept separate from the pregame "base bet." A lightweight price-watch
+cache (`data/locks_price_watch.json` locally,
 `polymarket-bet-calculator:locks_price_watch` on Redis) tracks the
 earliest price for every outcome in every paper-trading-league game, not
 just ones that are already locks, so there's a real "before" price to
