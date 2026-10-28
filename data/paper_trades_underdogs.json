@@ -861,28 +861,6 @@
       "polymarket_url": "https://polymarket.com/event/nfl-phi-was-2026-11-02"
     },
     {
-      "id": "f862a3af7c",
-      "event_id": "1243431",
-      "league": "nba",
-      "title": "Pacers vs. Heat",
-      "outcome": "Pacers",
-      "settlement_key": "Pacers",
-      "token_id": null,
-      "signal_type": "underdog",
-      "game_start": "2026-10-31T00:00:00+00:00",
-      "basis": "pregame",
-      "confidence": 0.9278,
-      "price": 0.43,
-      "stake": 5.0,
-      "shares": 11.6279,
-      "placed_at": "2026-10-28T07:18:56.866237+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/nba-ind-mia-2026-10-30"
-    },
-    {
       "id": "4de4e9028d",
       "event_id": "1232656",
       "league": "nba",
@@ -903,6 +881,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nba-cha-det-2026-10-28"
+    },
+    {
+      "id": "6c1f1e4490",
+      "event_id": "1232654",
+      "league": "nba",
+      "title": "Heat vs. Hawks",
+      "outcome": "Hawks",
+      "settlement_key": "Hawks",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-10-28T23:00:00+00:00",
+      "basis": "live",
+      "confidence": 0.844,
+      "price": 0.37,
+      "stake": 5.0,
+      "shares": 13.5135,
+      "placed_at": "2026-10-28T23:35:25.320178+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-mia-atl-2026-10-28"
     }
   ]
 }
