@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 80.2005,
+  "balance": 81.8284,
   "bets": [
     {
       "id": "345ebf5b08",
@@ -766,10 +766,10 @@
       "stake": 5.0,
       "shares": 12.5,
       "placed_at": "2026-10-27T06:09:57.205670+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-10-28T07:18:56.689565+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nba-det-nyk-2026-10-27"
     },
     {
@@ -788,10 +788,10 @@
       "stake": 5.0,
       "shares": 11.6279,
       "placed_at": "2026-10-27T06:09:57.205696+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-10-28T07:18:56.720125+00:00",
+      "payout": 11.6279,
+      "pnl": 6.6279,
       "polymarket_url": "https://polymarket.com/event/nba-por-lal-2026-10-27"
     },
     {
@@ -859,6 +859,50 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nfl-phi-was-2026-11-02"
+    },
+    {
+      "id": "f862a3af7c",
+      "event_id": "1243431",
+      "league": "nba",
+      "title": "Pacers vs. Heat",
+      "outcome": "Pacers",
+      "settlement_key": "Pacers",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-10-31T00:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.9278,
+      "price": 0.43,
+      "stake": 5.0,
+      "shares": 11.6279,
+      "placed_at": "2026-10-28T07:18:56.866237+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-ind-mia-2026-10-30"
+    },
+    {
+      "id": "1273a5b27f",
+      "event_id": "1244721",
+      "league": "nba",
+      "title": "Nuggets vs. Suns",
+      "outcome": "Suns",
+      "settlement_key": "Suns",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-10-31T02:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.6065,
+      "price": 0.47,
+      "stake": 5.0,
+      "shares": 10.6383,
+      "placed_at": "2026-10-28T07:18:56.866261+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-den-phx-2026-10-30"
     }
   ]
 }
