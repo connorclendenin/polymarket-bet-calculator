@@ -883,26 +883,26 @@
       "polymarket_url": "https://polymarket.com/event/nba-ind-mia-2026-10-30"
     },
     {
-      "id": "1273a5b27f",
-      "event_id": "1244721",
+      "id": "4de4e9028d",
+      "event_id": "1232656",
       "league": "nba",
-      "title": "Nuggets vs. Suns",
-      "outcome": "Suns",
-      "settlement_key": "Suns",
+      "title": "Hornets vs. Pistons",
+      "outcome": "Hornets",
+      "settlement_key": "Hornets",
       "token_id": null,
       "signal_type": "underdog",
-      "game_start": "2026-10-31T02:00:00+00:00",
+      "game_start": "2026-10-28T23:00:00+00:00",
       "basis": "pregame",
-      "confidence": 0.6065,
-      "price": 0.47,
+      "confidence": 0.3658,
+      "price": 0.29,
       "stake": 5.0,
-      "shares": 10.6383,
-      "placed_at": "2026-10-28T07:18:56.866261+00:00",
+      "shares": 17.2414,
+      "placed_at": "2026-10-28T14:11:48.572803+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
       "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/nba-den-phx-2026-10-30"
+      "polymarket_url": "https://polymarket.com/event/nba-cha-det-2026-10-28"
     }
   ]
 }
