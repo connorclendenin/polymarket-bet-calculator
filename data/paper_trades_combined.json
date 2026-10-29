@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 83.3863,
+  "balance": 76.6763,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -1030,10 +1030,10 @@
       "stake": 3.8975,
       "shares": 12.1797,
       "placed_at": "2026-10-29T02:52:24.987166+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-10-29T04:57:07.550177+00:00",
+      "payout": 0.0,
+      "pnl": -3.8975,
       "polymarket_url": "https://polymarket.com/event/nba-sas-uta-2026-10-28"
     },
     {
@@ -1052,10 +1052,10 @@
       "stake": 3.8975,
       "shares": 8.4728,
       "placed_at": "2026-10-29T02:52:24.987211+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-10-29T04:57:07.550235+00:00",
+      "payout": 0.0,
+      "pnl": -3.8975,
       "polymarket_url": "https://polymarket.com/event/nba-okc-dal-2026-10-28"
     },
     {
@@ -1101,6 +1101,50 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nba-mem-por-2026-10-29"
+    },
+    {
+      "id": "5f0f589617",
+      "event_id": "1243431",
+      "league": "nba",
+      "title": "Pacers vs. Heat",
+      "outcome": "Pacers",
+      "settlement_key": "Pacers",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-10-31T00:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8025,
+      "price": 0.33,
+      "stake": 3.355,
+      "shares": 10.1667,
+      "placed_at": "2026-10-29T09:18:44.298631+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-ind-mia-2026-10-30"
+    },
+    {
+      "id": "574789d2cb",
+      "event_id": "1249502",
+      "league": "nba",
+      "title": "Timberwolves vs. Spurs",
+      "outcome": "Timberwolves",
+      "settlement_key": "Timberwolves",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-11-01T00:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.6323,
+      "price": 0.26,
+      "stake": 3.355,
+      "shares": 12.9038,
+      "placed_at": "2026-10-29T09:18:44.298703+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-min-sas-2026-10-31"
     }
   ]
 }
