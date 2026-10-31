@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 85.6961,
+  "balance": 78.8211,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -1118,10 +1118,10 @@
       "stake": 3.355,
       "shares": 10.1667,
       "placed_at": "2026-10-29T09:18:44.298631+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-10-31T08:46:33.460277+00:00",
+      "payout": 0.0,
+      "pnl": -3.355,
       "polymarket_url": "https://polymarket.com/event/nba-ind-mia-2026-10-30"
     },
     {
@@ -1228,11 +1228,55 @@
       "stake": 3.8638,
       "shares": 55.1971,
       "placed_at": "2026-10-31T02:27:14.091335+00:00",
+      "status": "lost",
+      "settled_at": "2026-10-31T08:46:33.518212+00:00",
+      "payout": 0.0,
+      "pnl": -3.8638,
+      "polymarket_url": "https://polymarket.com/event/nba-hou-dal-2026-10-30"
+    },
+    {
+      "id": "ad170310ae",
+      "event_id": "1257709",
+      "league": "nba",
+      "title": "Raptors vs. Lakers",
+      "outcome": "Raptors",
+      "settlement_key": "Raptors",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-11-02T02:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.5042,
+      "price": 0.39,
+      "stake": 3.4375,
+      "shares": 8.8141,
+      "placed_at": "2026-10-31T08:46:33.617853+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
       "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/nba-hou-dal-2026-10-30"
+      "polymarket_url": "https://polymarket.com/event/nba-tor-lal-2026-11-01"
+    },
+    {
+      "id": "1e8af40af0",
+      "event_id": "1262956",
+      "league": "nba",
+      "title": "Thunder vs. Cavaliers",
+      "outcome": "Thunder",
+      "settlement_key": "Thunder",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-11-03T00:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.5249,
+      "price": 0.45,
+      "stake": 3.4375,
+      "shares": 7.6389,
+      "placed_at": "2026-10-31T08:46:33.617921+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-okc-cle-2026-11-02"
     }
   ]
 }
