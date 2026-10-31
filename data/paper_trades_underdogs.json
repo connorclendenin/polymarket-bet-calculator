@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 54.0698,
+  "balance": 59.7081,
   "bets": [
     {
       "id": "345ebf5b08",
@@ -1052,10 +1052,10 @@
       "stake": 5.0,
       "shares": 10.6383,
       "placed_at": "2026-10-30T07:10:39.921669+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-10-31T02:27:10.396847+00:00",
+      "payout": 10.6383,
+      "pnl": 5.6383,
       "polymarket_url": "https://polymarket.com/event/nba-nyk-phi-2026-10-30"
     },
     {
@@ -1101,6 +1101,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nba-dal-sas-2026-11-04"
+    },
+    {
+      "id": "1bf3b895c7",
+      "event_id": "1243432",
+      "league": "nba",
+      "title": "Rockets vs. Mavericks",
+      "outcome": "Rockets",
+      "settlement_key": "Rockets",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-10-31T00:00:00+00:00",
+      "basis": "live",
+      "confidence": 0.2992,
+      "price": 0.07,
+      "stake": 5.0,
+      "shares": 71.4286,
+      "placed_at": "2026-10-31T02:27:10.978447+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-hou-dal-2026-10-30"
     }
   ]
 }
