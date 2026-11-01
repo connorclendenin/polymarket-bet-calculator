@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 41.296,
+  "balance": 62.0362,
   "bets": [
     {
       "id": "d6a641b966",
@@ -480,10 +480,10 @@
       "stake": 5.0,
       "shares": 7.0423,
       "placed_at": "2026-10-25T04:12:08.567340+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-01T01:24:35.941534+00:00",
+      "payout": 7.0423,
+      "pnl": 2.0423,
       "polymarket_url": "https://polymarket.com/event/cfb-utah-cin-2026-10-31"
     },
     {
@@ -502,10 +502,10 @@
       "stake": 5.0,
       "shares": 5.5556,
       "placed_at": "2026-10-25T04:12:08.567358+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-01T01:24:36.181371+00:00",
+      "payout": 5.5556,
+      "pnl": 0.5556,
       "polymarket_url": "https://polymarket.com/event/cfb-vir-wake-2026-10-31"
     },
     {
@@ -700,10 +700,10 @@
       "stake": 7.0838,
       "shares": 8.1423,
       "placed_at": "2026-10-31T02:27:12.754146+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-01T01:24:37.653008+00:00",
+      "payout": 8.1423,
+      "pnl": 1.0585,
       "polymarket_url": "https://polymarket.com/event/cfb-arzst-byu-2026-10-31"
     },
     {
