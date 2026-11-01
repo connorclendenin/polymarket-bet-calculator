@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 69.4951,
+  "balance": 67.539,
   "bets": [
     {
       "id": "d6a641b966",
@@ -524,10 +524,10 @@
       "stake": 5.0,
       "shares": 5.8824,
       "placed_at": "2026-10-25T22:07:25.739608+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-01T23:01:22.705382+00:00",
+      "payout": 5.8824,
+      "pnl": 0.8824,
       "polymarket_url": "https://polymarket.com/event/nfl-ten-cin-2026-11-01"
     },
     {
@@ -546,10 +546,10 @@
       "stake": 5.0,
       "shares": 6.3291,
       "placed_at": "2026-10-25T22:07:25.739633+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-01T23:01:22.746381+00:00",
+      "payout": 6.3291,
+      "pnl": 1.3291,
       "polymarket_url": "https://polymarket.com/event/nfl-ind-jax-2026-11-01"
     },
     {
@@ -727,6 +727,50 @@
       "payout": 7.4589,
       "pnl": 1.5664,
       "polymarket_url": "https://polymarket.com/event/cfb-txst-boise-2026-10-31"
+    },
+    {
+      "id": "74b90ee695",
+      "event_id": "1217410",
+      "league": "nfl",
+      "title": "Bengals vs. Falcons",
+      "outcome": "Bengals",
+      "settlement_key": "Bengals",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-08T14:30:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8172,
+      "price": 0.64,
+      "stake": 7.0838,
+      "shares": 11.0684,
+      "placed_at": "2026-11-01T23:01:22.940102+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nfl-cin-atl-2026-11-08"
+    },
+    {
+      "id": "ec1e12d228",
+      "event_id": "1217417",
+      "league": "nfl",
+      "title": "Lions vs. Dolphins",
+      "outcome": "Lions",
+      "settlement_key": "Lions",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-08T18:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8981,
+      "price": 0.81,
+      "stake": 7.0838,
+      "shares": 8.7454,
+      "placed_at": "2026-11-01T23:01:22.940158+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nfl-det-mia-2026-11-08"
     }
   ]
 }
