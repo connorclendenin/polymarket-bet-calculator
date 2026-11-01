@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 62.0362,
+  "balance": 69.4951,
   "bets": [
     {
       "id": "d6a641b966",
@@ -722,10 +722,10 @@
       "stake": 5.8925,
       "shares": 7.4589,
       "placed_at": "2026-10-31T22:26:14.351335+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-01T07:56:48.935431+00:00",
+      "payout": 7.4589,
+      "pnl": 1.5664,
       "polymarket_url": "https://polymarket.com/event/cfb-txst-boise-2026-10-31"
     }
   ]
