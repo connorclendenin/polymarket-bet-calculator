@@ -365,6 +365,32 @@ def api_health():
     return jsonify({"status": "ok", "odds_configured": oddsapi.is_configured()})
 
 
+@app.route("/api/admin-void-retired-segments", methods=["POST"])
+def api_admin_void_retired_segments():
+    """Temporary, one-time — voids (refunds stake, removes) any currently
+    pending bet whose (signal_type, league) is now in
+    paper_trading.RETIRED_SEGMENTS, across all three accounts. New
+    placements are already correctly blocked; this just cleans up
+    exposure placed before the retirement. Remove this route once it's
+    been hit once."""
+    voided = []
+    for strategy_id in paper_trading.STRATEGIES:
+        state = paper_trading._load_state(strategy_id)
+        changed = False
+        for bet in list(state["bets"]):
+            if bet["status"] != "pending":
+                continue
+            if (bet["signal_type"], bet["league"]) not in paper_trading.RETIRED_SEGMENTS:
+                continue
+            state["balance"] = round(state["balance"] + bet["stake"], 4)
+            state["bets"].remove(bet)
+            changed = True
+            voided.append({"strategy_id": strategy_id, "title": bet["title"]})
+        if changed:
+            paper_trading._save_state(state, strategy_id)
+    return jsonify({"voided": voided})
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5007))
     app.run(host="127.0.0.1", port=port, debug=True)
