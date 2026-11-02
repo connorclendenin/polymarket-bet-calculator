@@ -474,6 +474,24 @@ def api_health():
     return jsonify({"status": "ok", "odds_configured": oddsapi.is_configured()})
 
 
+@app.route("/api/admin-debug-activity-types")
+def api_admin_debug_activity_types():
+    """Temporary — inspects real activity types/fields to check whether a
+    genuine realized-P/L series is computable now that the account has
+    real trade history (performance.py's doc comment concluded it wasn't,
+    written before any real trades existed to check against). Remove
+    after use."""
+    acts = us_api.fetch_activities()
+    types = {}
+    samples = {}
+    for a in acts:
+        t = a.get("type")
+        types[t] = types.get(t, 0) + 1
+        if t not in samples:
+            samples[t] = a
+    return jsonify({"total": len(acts), "type_counts": types, "samples": samples})
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5007))
     app.run(host="127.0.0.1", port=port, debug=True)
