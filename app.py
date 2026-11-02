@@ -1,3 +1,4 @@
+import hashlib
 import os
 from datetime import datetime, timezone
 
@@ -16,6 +17,31 @@ import store
 import us_api
 
 app = Flask(__name__)
+
+_asset_version_cache = {}
+
+
+def _asset_version(filename):
+    """A content-hash query string for static assets (app.js, style.css),
+    so browsers fetch fresh JS/CSS on every real deploy instead of risking
+    a stale cache. Needed because Vercel's static-file serving reports a
+    fixed Last-Modified/ETag that doesn't change between deploys — a
+    browser's conditional-GET revalidation can come back "not modified"
+    even when the file's content genuinely changed, silently stranding
+    visitors (including Connor himself, mid-session) on old JS. A new
+    content hash means a new URL, which bypasses that entirely rather
+    than depending on revalidation working correctly."""
+    if filename not in _asset_version_cache:
+        path = os.path.join(app.static_folder, filename)
+        try:
+            with open(path, "rb") as f:
+                _asset_version_cache[filename] = hashlib.md5(f.read()).hexdigest()[:10]
+        except OSError:
+            _asset_version_cache[filename] = "0"
+    return _asset_version_cache[filename]
+
+
+app.jinja_env.globals["asset_version"] = _asset_version
 
 DEFAULT_MIN_ARB_EDGE = 0.01  # 1 cent of guaranteed profit per $1 of combined outcome cost
 DEFAULT_MIN_VALUE_EDGE = 0.04  # 4 points of probability gap vs. sportsbook consensus
