@@ -9,6 +9,129 @@ function pct(p) {
   return p === null || p === undefined ? "—" : `${Math.round(p * 100)}%`;
 }
 
+// ---------- Shared interactive line chart ----------
+// One hand-rolled SVG chart builder reused by every chart in the app
+// (balance history, capital flow, real-vs-paper comparison, wallet P/L).
+// Adds a gradient area fill, light gridlines, and a hover crosshair +
+// tooltip driven by a single delegated mousemove listener (see
+// initChartInteractivity below) rather than per-chart event wiring, so it
+// survives every innerHTML re-render on each 30s poll without re-binding.
+
+let _chartIdCounter = 0;
+
+function buildInteractiveLineChart(points, opts) {
+  const { w, h, pad, color } = opts;
+  if (!points.length) return "";
+  const chartId = `ichart-${++_chartIdCounter}`;
+
+  const linePath = points
+    .map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`)
+    .join(" ");
+  const areaPath = `${linePath} L${points[points.length - 1].x.toFixed(1)},${(h - pad).toFixed(1)} L${points[0].x.toFixed(1)},${(h - pad).toFixed(1)} Z`;
+
+  const gridLines = [0.25, 0.5, 0.75]
+    .map((f) => {
+      const y = (pad + f * (h - 2 * pad)).toFixed(1);
+      return `<line x1="${pad}" y1="${y}" x2="${w - pad}" y2="${y}" class="chart-grid-line" />`;
+    })
+    .join("");
+
+  const extraLines = (opts.extraLines || [])
+    .map(
+      (l) =>
+        `<line x1="${pad}" y1="${l.y}" x2="${w - pad}" y2="${l.y}" stroke="${l.color || "var(--border-strong)"}" stroke-width="${l.width || 1}" ${l.dashed ? 'stroke-dasharray="5 4"' : ""} vector-effect="non-scaling-stroke" />`
+    )
+    .join("");
+
+  const pointsData = JSON.stringify(points.map((p) => ({ x: p.x, y: p.y, value: p.value, label: p.label }))).replace(/'/g, "&apos;");
+
+  return `
+    <div class="chart-wrap">
+      <svg viewBox="0 0 ${w} ${h}" class="pnl-chart interactive-chart" preserveAspectRatio="none" data-points='${pointsData}'>
+        <defs>
+          <linearGradient id="${chartId}-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${color}" stop-opacity="0.28" />
+            <stop offset="100%" stop-color="${color}" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        ${gridLines}
+        ${extraLines}
+        <path d="${areaPath}" fill="url(#${chartId}-fill)" stroke="none" />
+        <path d="${linePath}" fill="none" stroke="${color}" stroke-width="2" vector-effect="non-scaling-stroke" />
+        <line class="chart-crosshair" x1="0" y1="${pad}" x2="0" y2="${h - pad}" visibility="hidden" vector-effect="non-scaling-stroke" />
+        <circle class="chart-hover-dot" r="4" fill="${color}" visibility="hidden" vector-effect="non-scaling-stroke" />
+      </svg>
+      <div class="chart-tooltip" hidden></div>
+    </div>`;
+}
+
+function _hideChartHover(svg) {
+  const crosshair = svg.querySelector(".chart-crosshair");
+  const dot = svg.querySelector(".chart-hover-dot");
+  if (crosshair) crosshair.setAttribute("visibility", "hidden");
+  if (dot) dot.setAttribute("visibility", "hidden");
+  const wrap = svg.closest(".chart-wrap");
+  const tooltip = wrap && wrap.querySelector(".chart-tooltip");
+  if (tooltip) tooltip.hidden = true;
+}
+
+function _handleChartHover(svg, clientX, clientY) {
+  let points;
+  try {
+    points = JSON.parse(svg.getAttribute("data-points"));
+  } catch {
+    return;
+  }
+  if (!points || !points.length) return;
+
+  const rect = svg.getBoundingClientRect();
+  if (rect.width === 0) return;
+  const viewBox = svg.viewBox.baseVal;
+  const mouseX = ((clientX - rect.left) / rect.width) * viewBox.width;
+
+  let nearest = points[0];
+  let minDist = Infinity;
+  for (const p of points) {
+    const d = Math.abs(p.x - mouseX);
+    if (d < minDist) {
+      minDist = d;
+      nearest = p;
+    }
+  }
+
+  const crosshair = svg.querySelector(".chart-crosshair");
+  const dot = svg.querySelector(".chart-hover-dot");
+  crosshair.setAttribute("x1", nearest.x);
+  crosshair.setAttribute("x2", nearest.x);
+  crosshair.setAttribute("visibility", "visible");
+  dot.setAttribute("cx", nearest.x);
+  dot.setAttribute("cy", nearest.y);
+  dot.setAttribute("visibility", "visible");
+
+  const wrap = svg.closest(".chart-wrap");
+  const tooltip = wrap.querySelector(".chart-tooltip");
+  tooltip.innerHTML = `<div class="chart-tooltip-value">${nearest.value}</div><div class="chart-tooltip-label">${nearest.label}</div>`;
+  tooltip.hidden = false;
+
+  const wrapRect = wrap.getBoundingClientRect();
+  const tipWidth = tooltip.offsetWidth || 130;
+  let left = clientX - wrapRect.left + 14;
+  if (left + tipWidth > wrapRect.width) left = clientX - wrapRect.left - tipWidth - 14;
+  let top = clientY - wrapRect.top - 10;
+  tooltip.style.left = `${Math.max(0, left)}px`;
+  tooltip.style.top = `${Math.max(0, top)}px`;
+}
+
+function initChartInteractivity() {
+  document.addEventListener("mousemove", (e) => {
+    const hovered = e.target.closest && e.target.closest(".interactive-chart");
+    document.querySelectorAll(".interactive-chart").forEach((el) => {
+      if (el !== hovered) _hideChartHover(el);
+    });
+    if (hovered) _handleChartHover(hovered, e.clientX, e.clientY);
+  });
+}
+
 function setSectionVisible(panelId, navId, visible) {
   const panel = document.getElementById(panelId);
   if (panel) panel.hidden = !visible;
@@ -397,21 +520,30 @@ function buildBalanceChart(history) {
   const xScale = (i) => pad + (i / (history.length - 1)) * (w - 2 * pad);
   const yScale = (v) => (yMax === yMin ? h / 2 : h - pad - ((v - yMin) / (yMax - yMin)) * (h - 2 * pad));
 
-  const path = history
-    .map((p, i) => `${i === 0 ? "M" : "L"}${xScale(i).toFixed(1)},${yScale(p.balance).toFixed(1)}`)
-    .join(" ");
-  const startY = yScale(history[0].balance).toFixed(1);
+  const startY = yScale(history[0].balance);
   const last = history[history.length - 1];
   const lineColor = last.balance >= history[0].balance ? "#2ee6a6" : "#ff5c72";
   const lastSettled = history.filter((p) => p.timestamp).slice(-1)[0];
 
+  const points = history.map((p, i) => ({
+    x: xScale(i),
+    y: yScale(p.balance),
+    value: `$${p.balance.toFixed(2)}`,
+    label: p.timestamp ? fmtTime(p.timestamp) : "Start",
+  }));
+
+  const chart = buildInteractiveLineChart(points, {
+    w,
+    h,
+    pad,
+    color: lineColor,
+    extraLines: [{ y: startY.toFixed(1), dashed: true }],
+  });
+
   return `
-    <svg viewBox="0 0 ${w} ${h}" class="pnl-chart" preserveAspectRatio="none">
-      <line x1="${pad}" y1="${startY}" x2="${w - pad}" y2="${startY}" class="zero-line" />
-      <path d="${path}" fill="none" stroke="${lineColor}" stroke-width="2" vector-effect="non-scaling-stroke" />
-    </svg>
+    ${chart}
     <div class="chart-axis-labels"><span>Start · $${history[0].balance.toFixed(2)}</span><span>${lastSettled ? fmtTime(lastSettled.timestamp) : ""}</span></div>
-    <div class="chart-caption">Balance after each settled bet (dashed line = starting $100). ${history.length - 1} settled so far.</div>`;
+    <div class="chart-caption">Balance after each settled bet (dashed line = starting $100). ${history.length - 1} settled so far — hover the chart for exact values.</div>`;
 }
 
 function buildCalibrationTable(calibration) {
@@ -634,10 +766,7 @@ function buildCapitalFlowChart(capital) {
   const xScale = (i) => pad + (i / (points.length - 1)) * (w - 2 * pad);
   const yScale = (v) => (yMax === yMin ? h / 2 : h - pad - ((v - yMin) / (yMax - yMin)) * (h - 2 * pad));
 
-  const path = points
-    .map((p, i) => `${i === 0 ? "M" : "L"}${xScale(i).toFixed(1)},${yScale(p.net_capital).toFixed(1)}`)
-    .join(" ");
-  const zeroY = yScale(0).toFixed(1);
+  const zeroY = yScale(0);
   const last = points[points.length - 1];
   const lineColor = last.net_capital >= 0 ? "#2ee6a6" : "#ff5c72";
   const actualBalance = last.current_balance ?? 0;
@@ -646,11 +775,23 @@ function buildCapitalFlowChart(capital) {
       ? ` · Overall return: <strong class="${capital.overall_return_pct >= 0 ? "pnl-pos" : "pnl-neg"}">${capital.overall_return_pct >= 0 ? "+" : ""}${capital.overall_return_pct}%</strong>`
       : "";
 
+  const chartPoints = points.map((p, i) => ({
+    x: xScale(i),
+    y: yScale(p.net_capital),
+    value: `$${p.net_capital.toFixed(2)}`,
+    label: `${p.label} · ${fmtTime(p.timestamp)}`,
+  }));
+
+  const chart = buildInteractiveLineChart(chartPoints, {
+    w,
+    h,
+    pad,
+    color: lineColor,
+    extraLines: [{ y: zeroY.toFixed(1), dashed: true }],
+  });
+
   return `
-    <svg viewBox="0 0 ${w} ${h}" class="pnl-chart" preserveAspectRatio="none">
-      <line x1="${pad}" y1="${zeroY}" x2="${w - pad}" y2="${zeroY}" class="zero-line" />
-      <path d="${path}" fill="none" stroke="${lineColor}" stroke-width="2" vector-effect="non-scaling-stroke" />
-    </svg>
+    ${chart}
     <div class="chart-axis-labels"><span>${fmtTime(points[0].timestamp)}</span><span>Now</span></div>
     <div class="chart-caption">
       Net capital deposited minus withdrawn: <strong>$${capital.total_net_capital.toFixed(2)}</strong> ·
@@ -659,6 +800,7 @@ function buildCapitalFlowChart(capital) {
       doesn't reliably label which side of a matched trade is yours, so trade cash flow isn't
       plotted here rather than risk guessing the sign wrong on real money. It can legitimately dip
       below zero if you've ever withdrawn more than you'd deposited, funded by real trading gains.
+      Hover the chart for each deposit/withdrawal.
     </div>`;
 }
 
@@ -682,19 +824,30 @@ function buildComparisonChart(capital, paperSummary) {
   const xScale = (i) => pad + (i / (paperPoints.length - 1)) * (w - 2 * pad);
   const yScale = (v) => (yMax === yMin ? h / 2 : h - pad - ((v - yMin) / (yMax - yMin)) * (h - 2 * pad));
 
-  const path = paperPoints
-    .map((v, i) => `${i === 0 ? "M" : "L"}${xScale(i).toFixed(1)},${yScale(v).toFixed(1)}`)
-    .join(" ");
-  const zeroY = yScale(0).toFixed(1);
-  const refY = yScale(capital.overall_return_pct).toFixed(1);
+  const zeroY = yScale(0);
+  const refY = yScale(capital.overall_return_pct);
   const lastPaper = paperPoints[paperPoints.length - 1];
 
+  const chartPoints = paperSummary.history.map((p, i) => ({
+    x: xScale(i),
+    y: yScale(paperPoints[i]),
+    value: `${paperPoints[i] >= 0 ? "+" : ""}${paperPoints[i].toFixed(1)}%`,
+    label: p.label || (p.timestamp ? fmtTime(p.timestamp) : "Start"),
+  }));
+
+  const chart = buildInteractiveLineChart(chartPoints, {
+    w,
+    h,
+    pad,
+    color: lastPaper >= 0 ? "#2ee6a6" : "#ff5c72",
+    extraLines: [
+      { y: zeroY.toFixed(1), dashed: true },
+      { y: refY.toFixed(1), dashed: true, color: "#a78bfa", width: 1.5 },
+    ],
+  });
+
   return `
-    <svg viewBox="0 0 ${w} ${h}" class="pnl-chart" preserveAspectRatio="none">
-      <line x1="${pad}" y1="${zeroY}" x2="${w - pad}" y2="${zeroY}" class="zero-line" />
-      <line x1="${pad}" y1="${refY}" x2="${w - pad}" y2="${refY}" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="5 4" vector-effect="non-scaling-stroke" />
-      <path d="${path}" fill="none" stroke="${lastPaper >= 0 ? "#2ee6a6" : "#ff5c72"}" stroke-width="2" vector-effect="non-scaling-stroke" />
-    </svg>
+    ${chart}
     <div class="chart-axis-labels">
       <span>Paper trading (combined account): ${lastPaper >= 0 ? "+" : ""}${lastPaper.toFixed(1)}%</span>
       <span>Your real account: ${capital.overall_return_pct >= 0 ? "+" : ""}${capital.overall_return_pct}% (dashed)</span>
@@ -702,8 +855,9 @@ function buildComparisonChart(capital, paperSummary) {
     <div class="chart-caption">
       Both shown as % return on capital so they're comparable despite very different bankroll sizes
       ($100 simulated vs. $${capital.total_net_capital.toFixed(2)} real net deposits). The dashed
-      line is your real account's overall return as of today — a single number, not a day-by-day
-      curve (see the capital-flow chart above for why).
+      purple line is your real account's overall return as of today — a single number, not a
+      day-by-day curve (see the capital-flow chart above for why). Hover the chart for each settled
+      paper bet.
     </div>`;
 }
 
@@ -854,22 +1008,31 @@ function buildPnlChart(history) {
   const xScale = (t) => (xMax === xMin ? pad : pad + ((t - xMin) / (xMax - xMin)) * (w - 2 * pad));
   const yScale = (v) => (yMax === yMin ? h / 2 : h - pad - ((v - yMin) / (yMax - yMin)) * (h - 2 * pad));
 
-  const path = history
-    .map((p, i) => `${i === 0 ? "M" : "L"}${xScale(p.timestamp).toFixed(1)},${yScale(p.cumulative_pnl).toFixed(1)}`)
-    .join(" ");
-  const zeroY = yScale(0).toFixed(1);
+  const zeroY = yScale(0);
   const last = history[history.length - 1];
   const lineColor = last.cumulative_pnl >= 0 ? "#2ee6a6" : "#ff5c72";
   const firstDate = fmtTime(history[0].date);
   const lastDate = fmtTime(last.date);
 
+  const points = history.map((p) => ({
+    x: xScale(p.timestamp),
+    y: yScale(p.cumulative_pnl),
+    value: money(p.cumulative_pnl),
+    label: fmtTime(p.date),
+  }));
+
+  const chart = buildInteractiveLineChart(points, {
+    w,
+    h,
+    pad,
+    color: lineColor,
+    extraLines: [{ y: zeroY.toFixed(1), dashed: true }],
+  });
+
   return `
-    <svg viewBox="0 0 ${w} ${h}" class="pnl-chart" preserveAspectRatio="none">
-      <line x1="${pad}" y1="${zeroY}" x2="${w - pad}" y2="${zeroY}" class="zero-line" />
-      <path d="${path}" fill="none" stroke="${lineColor}" stroke-width="2" vector-effect="non-scaling-stroke" />
-    </svg>
+    ${chart}
     <div class="chart-axis-labels"><span>${firstDate}</span><span>${lastDate}</span></div>
-    <div class="chart-caption">Cumulative realized cash flow from ${history.length.toLocaleString()} trades/redemptions. Open (unresolved) bets show as a temporary dip until they settle — see "Open positions value" above for what's still in play.</div>`;
+    <div class="chart-caption">Cumulative realized cash flow from ${history.length.toLocaleString()} trades/redemptions. Open (unresolved) bets show as a temporary dip until they settle — see "Open positions value" above for what's still in play. Hover the chart for exact values.</div>`;
 }
 
 function buildPositionBars(positions) {
@@ -979,6 +1142,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadPositions(address);
   });
 
+  initChartInteractivity();
   refreshScan();
   refreshUsAccount();
   scheduleRefresh();
