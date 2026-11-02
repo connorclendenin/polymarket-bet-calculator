@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 66.7723,
+  "balance": 61.7723,
   "bets": [
     {
       "id": "345ebf5b08",
@@ -1096,10 +1096,10 @@
       "stake": 5.0,
       "shares": 12.8205,
       "placed_at": "2026-10-31T08:46:32.890838+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-02T05:34:16.777286+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nba-tor-lal-2026-11-01"
     },
     {
@@ -1277,6 +1277,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nba-bkn-nyk-2026-11-02"
+    },
+    {
+      "id": "190e3c8ce6",
+      "event_id": "1264478",
+      "league": "nba",
+      "title": "Trail Blazers vs. Nuggets",
+      "outcome": "Trail Blazers",
+      "settlement_key": "Trail Blazers",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-11-03T02:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8249,
+      "price": 0.39,
+      "stake": 5.0,
+      "shares": 12.8205,
+      "placed_at": "2026-11-02T09:51:24.043216+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-por-den-2026-11-02"
     }
   ]
 }
