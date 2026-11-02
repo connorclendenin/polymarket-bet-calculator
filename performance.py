@@ -118,3 +118,48 @@ def build_us_capital_series(activities, current_balance):
         "total_net_capital": round(total_net_capital, 4),
         "overall_return_pct": overall_return_pct,
     }
+
+
+# --- polymarket.us account: realized profit ---
+#
+# The capital-flow reconstruction above exists because TRADE activities
+# don't cleanly label which side is the account's own. ACTIVITY_TYPE_
+# POSITION_RESOLUTION activities sidestep that entirely: each carries an
+# `afterPosition.realized` field — the account's own already-computed,
+# correctly-signed realized P/L for that one position once it closes. No
+# reconstruction or direction-guessing needed; this is a genuine real
+# profit series, sourced from polymarket.us's own numbers. It only ever
+# updates when a position actually resolves, so it's a step curve, not a
+# mark-to-market one — an open position's unrealized P/L never appears
+# here until it closes (same convention as the public-wallet P/L chart).
+
+
+def build_us_profit_series(activities):
+    events = [a for a in activities if a.get("type") == "ACTIVITY_TYPE_POSITION_RESOLUTION"]
+
+    def _update_time(a):
+        return a.get("positionResolution", {}).get("afterPosition", {}).get("updateTime") or ""
+
+    events.sort(key=_update_time)
+
+    realized_by_position = {}
+    points = []
+    for a in events:
+        after = a.get("positionResolution", {}).get("afterPosition") or {}
+        realized = after.get("realized") or {}
+        try:
+            value = float(realized["value"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        key = after.get("positionId") or (after.get("marketMetadata") or {}).get("slug")
+        realized_by_position[key] = value
+        running = round(sum(realized_by_position.values()), 4)
+        title = (after.get("marketMetadata") or {}).get("title") or "Position resolved"
+        points.append(
+            {
+                "timestamp": after.get("updateTime"),
+                "cumulative_profit": running,
+                "label": title,
+            }
+        )
+    return points

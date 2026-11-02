@@ -764,33 +764,28 @@ function scheduleRefresh() {
   }, REFRESH_MS);
 }
 
-function buildCapitalFlowChart(capital) {
-  if (!capital || !capital.points || capital.points.length < 2) {
-    return '<div class="empty-state">Not enough deposit/withdrawal history yet to chart.</div>';
+function buildProfitChart(profitHistory) {
+  if (!profitHistory || !profitHistory.length) {
+    return '<div class="empty-state">No resolved positions yet — this fills in as your real bets settle.</div>';
   }
-  const points = capital.points;
   const w = 680;
   const h = 170;
   const pad = 30;
-  const ys = points.map((p) => p.net_capital);
+  const ys = profitHistory.map((p) => p.cumulative_profit);
   const yMin = Math.min(...ys, 0);
   const yMax = Math.max(...ys, 0);
-  const xScale = (i) => pad + (i / (points.length - 1)) * (w - 2 * pad);
+  const n = profitHistory.length;
+  const xScale = (i) => (n === 1 ? pad : pad + (i / (n - 1)) * (w - 2 * pad));
   const yScale = (v) => (yMax === yMin ? h / 2 : h - pad - ((v - yMin) / (yMax - yMin)) * (h - 2 * pad));
 
   const zeroY = yScale(0);
-  const last = points[points.length - 1];
-  const lineColor = last.net_capital >= 0 ? "#2ee6a6" : "#ff5c72";
-  const actualBalance = last.current_balance ?? 0;
-  const returnLine =
-    capital.overall_return_pct !== null && capital.overall_return_pct !== undefined
-      ? ` · Overall return: <strong class="${capital.overall_return_pct >= 0 ? "pnl-pos" : "pnl-neg"}">${capital.overall_return_pct >= 0 ? "+" : ""}${capital.overall_return_pct}%</strong>`
-      : "";
+  const last = profitHistory[n - 1];
+  const lineColor = last.cumulative_profit >= 0 ? "#2ee6a6" : "#ff5c72";
 
-  const chartPoints = points.map((p, i) => ({
+  const chartPoints = profitHistory.map((p, i) => ({
     x: xScale(i),
-    y: yScale(p.net_capital),
-    value: `$${p.net_capital.toFixed(2)}`,
+    y: yScale(p.cumulative_profit),
+    value: money(p.cumulative_profit),
     label: `${p.label} · ${fmtTime(p.timestamp)}`,
   }));
 
@@ -804,15 +799,14 @@ function buildCapitalFlowChart(capital) {
 
   return `
     ${chart}
-    <div class="chart-axis-labels"><span>${fmtTime(points[0].timestamp)}</span><span>Now</span></div>
+    <div class="chart-axis-labels"><span>${fmtTime(profitHistory[0].timestamp)}</span><span>Latest</span></div>
     <div class="chart-caption">
-      Net capital deposited minus withdrawn: <strong>$${capital.total_net_capital.toFixed(2)}</strong> ·
-      Actual balance today: <strong>$${Number(actualBalance).toFixed(2)}</strong>${returnLine}.
-      This tracks capital flow, not trade-by-trade portfolio value — polymarket.us's activity log
-      doesn't reliably label which side of a matched trade is yours, so trade cash flow isn't
-      plotted here rather than risk guessing the sign wrong on real money. It can legitimately dip
-      below zero if you've ever withdrawn more than you'd deposited, funded by real trading gains.
-      Hover the chart for each deposit/withdrawal.
+      Cumulative realized profit from ${n.toLocaleString()} resolved position${n === 1 ? "" : "s"}:
+      <strong class="${last.cumulative_profit >= 0 ? "pnl-pos" : "pnl-neg"}">${money(last.cumulative_profit)}</strong>.
+      Sourced directly from polymarket.us's own per-position realized P/L — not reconstructed from
+      raw trades, so there's no ambiguity about which side of a matched trade is yours. An open
+      (unresolved) position doesn't appear here until it settles — see "Open positions" above for
+      what's still in play. Hover the chart for each resolved position.
     </div>`;
 }
 
@@ -867,8 +861,9 @@ function buildComparisonChart(capital, paperSummary) {
     <div class="chart-caption">
       Both shown as % return on capital so they're comparable despite very different bankroll sizes
       ($100 simulated vs. $${capital.total_net_capital.toFixed(2)} real net deposits). The dashed
-      purple line is your real account's overall return as of today — a single number, not a
-      day-by-day curve (see the capital-flow chart above for why). Hover the chart for each settled
+      purple line is your real account's overall return as of today (today's balance vs. total net
+      deposits) — a single number, not a day-by-day curve, since there's no reliable historical
+      balance snapshot to plot it against at past points in time. Hover the chart for each settled
       paper bet.
     </div>`;
 }
@@ -963,8 +958,8 @@ function renderUsAccount(data) {
     <div class="stat-tiles">${balanceTiles}</div>
     <h3 class="sub-heading">Open positions</h3>
     ${positionsHtml}
-    <h3 class="sub-heading">Capital flow over time</h3>
-    <div class="pnl-chart-wrap">${buildCapitalFlowChart(data.capital_history)}</div>
+    <h3 class="sub-heading">Profit over time</h3>
+    <div class="pnl-chart-wrap">${buildProfitChart(data.profit_history)}</div>
     <h3 class="sub-heading">Real account vs. paper trading — % return comparison</h3>
     <div class="pnl-chart-wrap">${buildComparisonChart(data.capital_history, latestPaperSummary)}</div>`;
 }

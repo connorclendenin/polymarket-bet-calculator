@@ -425,6 +425,7 @@ def api_us_account():
     ]
 
     capital_history = None
+    profit_history = None
     try:
         buying_power = us_api.fetch_buying_power()
         usd_balance = next(
@@ -433,10 +434,18 @@ def api_us_account():
         )
         activities = us_api.fetch_activities()
         capital_history = performance.build_us_capital_series(activities, usd_balance)
+        profit_history = performance.build_us_profit_series(activities)
     except Exception:
-        pass  # capital-flow chart is best-effort; balances/positions still return without it
+        pass  # these charts are best-effort; balances/positions still return without them
 
-    return jsonify({"configured": True, "capital_history": capital_history, **summary})
+    return jsonify(
+        {
+            "configured": True,
+            "capital_history": capital_history,
+            "profit_history": profit_history,
+            **summary,
+        }
+    )
 
 
 @app.route("/api/positions")
@@ -472,24 +481,6 @@ def api_positions():
 @app.route("/api/health")
 def api_health():
     return jsonify({"status": "ok", "odds_configured": oddsapi.is_configured()})
-
-
-@app.route("/api/admin-debug-activity-types")
-def api_admin_debug_activity_types():
-    """Temporary — inspects real activity types/fields to check whether a
-    genuine realized-P/L series is computable now that the account has
-    real trade history (performance.py's doc comment concluded it wasn't,
-    written before any real trades existed to check against). Remove
-    after use."""
-    acts = us_api.fetch_activities()
-    types = {}
-    samples = {}
-    for a in acts:
-        t = a.get("type")
-        types[t] = types.get(t, 0) + 1
-        if t not in samples:
-            samples[t] = a
-    return jsonify({"total": len(acts), "type_counts": types, "samples": samples})
 
 
 if __name__ == "__main__":
