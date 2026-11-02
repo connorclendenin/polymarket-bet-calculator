@@ -397,6 +397,38 @@ main {
 }
 .open-link:hover { background: var(--purple); border-color: var(--purple); color: #0a0a0d; }
 
+/* ---------- My account — real open positions ---------- */
+
+.us-positions-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px; margin-bottom: 20px;
+}
+
+.us-position-card {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 15px; background: var(--surface);
+}
+
+.us-position-header {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 8px; margin-bottom: 8px;
+}
+.us-position-title { font-size: 13.5px; font-weight: 800; letter-spacing: -0.005em; }
+
+.us-position-what { font-size: 12.5px; color: var(--text-dim); margin-bottom: 10px; }
+.us-position-legs {
+  list-style: none; margin: 0 0 10px; padding: 0; font-size: 12.5px;
+  color: var(--text-dim); display: flex; flex-direction: column; gap: 3px;
+}
+
+.us-position-stats {
+  display: flex; flex-wrap: wrap; gap: 10px; font-size: 11.5px;
+  color: var(--text-faint-solid); font-weight: 600; margin-bottom: 10px;
+}
+
+.us-position-confidence { margin-bottom: 10px; }
+.us-position-confidence .hint { display: block; margin-bottom: 8px; }
+
 /* ---------- Stat tiles, charts, calibration, bets (paper trading + positions) ---------- */
 
 .stat-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 18px; }

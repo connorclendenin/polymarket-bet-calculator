@@ -293,6 +293,84 @@ def api_paper():
     )
 
 
+def _cached_scan_rows():
+    """Best-effort game rows to match real polymarket.us positions against
+    for model confidence — reads the same cache /api/scan reads when
+    deployed (no live scan from a request handler), or does a cheap local
+    scan in dev (same in-process TTLCache every other local route already
+    warms). Never raises — a failure here just means positions render
+    without a confidence reading, not a broken page."""
+    try:
+        if store.is_configured():
+            cached = store.load(_SCAN_CACHE_REDIS_KEY, _SCAN_CACHE_LOCAL_KEY, None)
+            return (cached or {}).get("games", [])
+        return _run_scan(None)
+    except Exception:
+        return []
+
+
+def _decimal_field(position, key):
+    try:
+        return float(position[key]["value"])
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def _clean_us_position(slug, position, cached_rows):
+    meta = position.get("marketMetadata") or {}
+    legs = position.get("comboLegDetails") or []
+    title = meta.get("title") or (legs[0].get("title") if legs else "") or ""
+    subject = (meta.get("subject") or {}).get("name")  # player name, for a player prop
+
+    leg_summaries = [
+        {
+            "team": (leg.get("team") or {}).get("alias") or (leg.get("team") or {}).get("name"),
+            "pick": leg.get("outcome"),
+            "side": (leg.get("outcomeSide") or "").replace("OUTCOME_SIDE_", "").title(),
+        }
+        for leg in legs
+    ]
+
+    try:
+        qty = float(position["netPositionDecimal"])
+    except (KeyError, TypeError, ValueError):
+        qty = None
+
+    cleaned = {
+        "slug": slug,
+        "title": title,
+        "subject": subject,
+        "outcome": meta.get("outcome"),
+        "is_combo": bool(legs),
+        "legs": leg_summaries,
+        "qty": qty,
+        "avg_price": _decimal_field(position, "avgPx"),
+        "cost": _decimal_field(position, "cost"),
+        "fees": _decimal_field(position, "fees"),
+        "realized": _decimal_field(position, "realized"),
+        "expired": bool(position.get("expired")),
+        "updated_at": position.get("updateTime"),
+    }
+
+    matched = confidence.match_us_position_to_game(title, cached_rows)
+    if matched:
+        cleaned["game"] = {
+            "title": matched.get("title"),
+            "status": matched.get("status"),
+            "polymarket_url": matched.get("polymarket_url"),
+            "outcomes": [
+                {
+                    "name": o["name"],
+                    "logo": o.get("logo"),
+                    "confidence": o.get("live_prob", o.get("model_prob")),
+                    "basis": "live" if "live_prob" in o else ("pregame" if "model_prob" in o else None),
+                }
+                for o in matched.get("outcomes", [])
+            ],
+        }
+    return cleaned
+
+
 @app.route("/api/us-account")
 def api_us_account():
     if not us_api.is_configured():
@@ -314,6 +392,11 @@ def api_us_account():
         detail = getattr(getattr(exc, "response", None), "text", None)
         msg = f"API request failed: {exc}" + (f" | body: {detail}" if detail else "")
         return jsonify({"configured": True, "error": msg}), 502
+
+    cached_rows = _cached_scan_rows()
+    summary["positions"] = [
+        _clean_us_position(slug, p, cached_rows) for slug, p in (summary.get("positions") or {}).items()
+    ]
 
     capital_history = None
     try:

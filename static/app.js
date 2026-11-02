@@ -707,6 +707,57 @@ function buildComparisonChart(capital, paperSummary) {
     </div>`;
 }
 
+function usPositionWhatCard(p) {
+  if (p.is_combo && p.legs.length) {
+    const legRows = p.legs
+      .map((l) => `<li>${l.team || "—"} <strong>${l.pick || "—"}</strong>${l.side ? ` <span class="hint">(${l.side})</span>` : ""}</li>`)
+      .join("");
+    return `<ul class="us-position-legs">${legRows}</ul>`;
+  }
+  const what = p.subject ? `${p.subject} — ${p.outcome || "—"}` : p.outcome || "—";
+  return `<div class="us-position-what">${what}</div>`;
+}
+
+function usPositionCard(p) {
+  const title = (p.game && p.game.title) || p.title || "Unknown matchup";
+  const isLive = p.game && p.game.status === "live";
+  const qtyStr = p.qty === null || p.qty === undefined ? "—" : p.qty.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  const avgStr = p.avg_price === null || p.avg_price === undefined ? "—" : "$" + p.avg_price.toFixed(3);
+  const costStr = p.cost === null || p.cost === undefined ? "—" : "$" + p.cost.toFixed(2);
+  const realizedStr =
+    p.realized !== null && p.realized !== undefined && p.realized !== 0
+      ? `<span class="${p.realized > 0 ? "pnl-pos" : "pnl-neg"}">realized ${money(p.realized)}</span>`
+      : "";
+
+  let confidenceHtml = "";
+  const outcomes = p.game && p.game.outcomes;
+  if (outcomes && outcomes.length === 2) {
+    const kind = outcomes[0].basis === "live" ? "pct-pill-live" : "pct-pill-model";
+    confidenceHtml = `
+      <div class="us-position-confidence">
+        <div class="hint">Model's game-winner view${outcomes[0].basis === "live" ? " (live)" : ""} — not a read on this specific bet</div>
+        <div class="team-pct-rows">${outcomes.map((o) => teamPctRow(o, o.confidence, kind)).join("")}</div>
+      </div>`;
+  }
+
+  return `
+    <div class="us-position-card">
+      <div class="us-position-header">
+        <span class="us-position-title">${title}</span>
+        ${isLive ? '<span class="status-badge is-live"><span class="dot-live"></span> LIVE</span>' : ""}
+      </div>
+      ${usPositionWhatCard(p)}
+      <div class="us-position-stats">
+        <span>${qtyStr} shares</span>
+        <span>avg ${avgStr}</span>
+        <span>cost ${costStr}</span>
+        ${realizedStr}
+      </div>
+      ${confidenceHtml}
+      ${p.game ? `<a class="open-link" href="${p.game.polymarket_url}" target="_blank" rel="noopener">View matchup →</a>` : ""}
+    </div>`;
+}
+
 function renderUsAccount(data) {
   const el = document.getElementById("us-account-body");
 
@@ -722,8 +773,7 @@ function renderUsAccount(data) {
   }
 
   const balances = data.balances || [];
-  const positions = data.positions || {};
-  const positionEntries = Object.entries(positions);
+  const positions = data.positions || [];
 
   const balanceTiles = balances
     .map(
@@ -739,41 +789,13 @@ function renderUsAccount(data) {
     )
     .join("");
 
-  let positionsHtml;
-  if (!positionEntries.length) {
-    positionsHtml = '<div class="empty-state">No open positions.</div>';
-  } else {
-    const rows = positionEntries
-      .map(([slug, p]) => {
-        // Exact field names aren't nailed down from docs yet — show the
-        // common ones if present, raw JSON otherwise so nothing's hidden.
-        const known = ["outcome", "size", "avgPrice", "currentValue", "unrealizedPnl", "realizedPnl"];
-        const hasKnown = known.some((k) => p[k] !== undefined);
-        if (hasKnown) {
-          const pnl = p.unrealizedPnl ?? p.realizedPnl;
-          const pnlClass = pnl > 0 ? "pnl-pos" : pnl < 0 ? "pnl-neg" : "";
-          return `
-          <tr>
-            <td>${slug}</td>
-            <td>${p.outcome ?? "—"}</td>
-            <td>${p.size ?? "—"}</td>
-            <td>${p.avgPrice !== undefined ? "$" + Number(p.avgPrice).toFixed(3) : "—"}</td>
-            <td>${p.currentValue !== undefined ? "$" + Number(p.currentValue).toFixed(2) : "—"}</td>
-            <td class="${pnlClass}">${pnl !== undefined ? money(pnl) : "—"}</td>
-          </tr>`;
-        }
-        return `<tr><td>${slug}</td><td colspan="5"><code>${JSON.stringify(p)}</code></td></tr>`;
-      })
-      .join("");
-    positionsHtml = `
-      <table>
-        <thead><tr><th>Market</th><th>Side</th><th>Size</th><th>Avg price</th><th>Current value</th><th>P/L</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>`;
-  }
+  const positionsHtml = positions.length
+    ? `<div class="us-positions-grid">${positions.map(usPositionCard).join("")}</div>`
+    : '<div class="empty-state">No open positions.</div>';
 
   el.innerHTML = `
     <div class="stat-tiles">${balanceTiles}</div>
+    <h3 class="sub-heading">Open positions</h3>
     ${positionsHtml}
     <h3 class="sub-heading">Capital flow over time</h3>
     <div class="pnl-chart-wrap">${buildCapitalFlowChart(data.capital_history)}</div>

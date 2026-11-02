@@ -258,6 +258,25 @@ def _slug_mentions_both_teams(slug, team_names):
     return hits >= 2
 
 
+def match_us_position_to_game(position_title, cached_rows):
+    """Finds the cached scan row a real polymarket.us position's game
+    belongs to, by team-name overlap — same technique as
+    _slug_mentions_both_teams, just against the position's own title
+    string instead of a slug. polymarket.us titles carry a city
+    abbreviation prefix this app's own titles don't ("CHI Bears vs. SEA
+    Seahawks" vs this app's "Bears vs. Seahawks"), and the two products
+    share no event id at all, so name-overlap is the only way to join
+    them. Returns None if nothing matches — callers must treat that as
+    "no model data for this position," not an error."""
+    if not position_title or not cached_rows:
+        return None
+    for row in cached_rows:
+        names = [o["name"] for o in row.get("outcomes", []) if o.get("name")]
+        if len(names) >= 2 and _slug_mentions_both_teams(position_title, names):
+            return row
+    return None
+
+
 def attach_your_position(row, game, us_positions):
     """Flags when the user already holds a position in this game on their
     polymarket.us account, matched by team-name overlap with the position's
