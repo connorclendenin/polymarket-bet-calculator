@@ -45,6 +45,17 @@ function buildInteractiveLineChart(points, opts) {
 
   const pointsData = JSON.stringify(points.map((p) => ({ x: p.x, y: p.y, value: p.value, label: p.label }))).replace(/'/g, "&apos;");
 
+  // Always-on marker + label at the most recent point, so the current
+  // value reads at a glance without needing to hover — Connor's explicit
+  // ask. Labeled above the dot by default, flipped below when the point
+  // sits too close to the top edge to fit a label above it.
+  const latest = points[points.length - 1];
+  const labelAbove = latest.y - pad > 16;
+  const labelY = (labelAbove ? latest.y - 12 : latest.y + 20).toFixed(1);
+  const latestMarker = `
+    <circle cx="${latest.x.toFixed(1)}" cy="${latest.y.toFixed(1)}" r="4.5" fill="${color}" stroke="var(--surface)" stroke-width="2" vector-effect="non-scaling-stroke" />
+    <text x="${latest.x.toFixed(1)}" y="${labelY}" text-anchor="end" class="chart-latest-label" fill="${color}">${latest.value}</text>`;
+
   return `
     <div class="chart-wrap">
       <svg viewBox="0 0 ${w} ${h}" class="pnl-chart interactive-chart" preserveAspectRatio="none" data-points='${pointsData}'>
@@ -58,6 +69,7 @@ function buildInteractiveLineChart(points, opts) {
         ${extraLines}
         <path d="${areaPath}" fill="url(#${chartId}-fill)" stroke="none" />
         <path d="${linePath}" fill="none" stroke="${color}" stroke-width="2" vector-effect="non-scaling-stroke" />
+        ${latestMarker}
         <line class="chart-crosshair" x1="0" y1="${pad}" x2="0" y2="${h - pad}" visibility="hidden" vector-effect="non-scaling-stroke" />
         <circle class="chart-hover-dot" r="4" fill="${color}" visibility="hidden" vector-effect="non-scaling-stroke" />
       </svg>
