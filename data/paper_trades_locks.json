@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 67.539,
+  "balance": 65.3475,
   "bets": [
     {
       "id": "d6a641b966",
@@ -568,10 +568,10 @@
       "stake": 5.0,
       "shares": 6.4935,
       "placed_at": "2026-10-25T22:07:25.739647+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-02T00:48:33.261585+00:00",
+      "payout": 6.4935,
+      "pnl": 1.4935,
       "polymarket_url": "https://polymarket.com/event/nfl-lac-la-2026-11-01"
     },
     {
@@ -590,10 +590,10 @@
       "stake": 5.0,
       "shares": 8.3333,
       "placed_at": "2026-10-25T22:07:25.739661+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-02T01:03:32.659353+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nfl-kc-den-2026-11-01"
     },
     {
@@ -771,6 +771,50 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nfl-det-mia-2026-11-08"
+    },
+    {
+      "id": "677742ae81",
+      "event_id": "1217415",
+      "league": "nfl",
+      "title": "Jets vs. Chiefs",
+      "outcome": "Chiefs",
+      "settlement_key": "Chiefs",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-08T18:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8496,
+      "price": 0.82,
+      "stake": 4.3425,
+      "shares": 5.2957,
+      "placed_at": "2026-11-02T02:24:52.109184+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nfl-nyj-kc-2026-11-08"
+    },
+    {
+      "id": "ac47c65c0a",
+      "event_id": "1217423",
+      "league": "nfl",
+      "title": "Rams vs. Commanders",
+      "outcome": "Rams",
+      "settlement_key": "Rams",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-08T18:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8111,
+      "price": 0.71,
+      "stake": 4.3425,
+      "shares": 6.1162,
+      "placed_at": "2026-11-02T02:24:52.109247+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nfl-la-was-2026-11-08"
     }
   ]
 }
