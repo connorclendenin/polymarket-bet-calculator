@@ -6,14 +6,22 @@ touches Polymarket beyond reading public market data.
 
 The three accounts, Connor's own explicit design:
 - `underdogs` — only "Smart underdog" signals, flat stake.
-- `locks` — only "Lock" signals, flat stake.
-- `combined` — both signal types, but stake sizing *learns from this
-  account's own settled history*: a (signal_type, league) segment that's
-  been winning gets a bigger stake next time, one that's been losing gets a
+- `locks` — only "Lock" signals: a pregame bet sizes the same adaptive way
+  as `combined` (below), but a live dip-buy entry is always a flat $5
+  (_locks_stake) — a more conservative, opportunistic bet kept separate
+  from the pregame "base bet."
+- `combined` — both signal types, stake sizing *learns from this account's
+  own settled history*: a (signal_type, league) segment that's been
+  profitable gets a bigger stake next time, one that's been losing gets a
   smaller one, well before a real loser gets fully paused (see
-  _segment_performance / _combined_adaptive_stake). This is the account
-  that's actually supposed to refine its own bet choices over time, not
-  just report calibration after the fact.
+  _segment_performance / _adaptive_stake — scales off each segment's own
+  realized ROI, not win rate, since breakeven win rate isn't 50% for every
+  bet type). This is the account that's actually supposed to refine its
+  own bet choices over time, not just report calibration after the fact.
+
+A handful of (signal_type, league) segments are retired outright —
+RETIRED_SEGMENTS — when a result is extreme enough to act on before
+MIN_SEGMENT_SAMPLES's normal auto-pause would catch it.
 
 Why three separate accounts instead of one: with only a handful of settled
 bets, no amount of after-the-fact tuning of ONE strategy's thresholds can
@@ -51,12 +59,29 @@ def _restrict_to_paper_trading_leagues(rows):
     return [r for r in rows if r["league"] in PAPER_TRADING_LEAGUES]
 
 
-def _allowed_for_paper_trading(row):
+# Segments retired outright — Connor's explicit go-ahead, below the normal
+# MIN_SEGMENT_SAMPLES auto-pause threshold because the result was extreme
+# enough to act on early: CFB underdog bets went 0-for-9 (-$45, `underdogs`)
+# and 0-for-8 (-$37, `combined`) — 0% win rate across 17 combined trials is
+# a far stronger signal than a middling win rate at a larger n. CFB locks
+# are untouched (72.7% win rate, only marginally negative on payout math —
+# a completely different, much weaker pattern). Likely cause: CFB's
+# confidence model is the weakest in the app (no real stats feed, see
+# stats.py), and since the Top-25 gate means a CFB "underdog" is almost
+# always the unranked side of a ranked-vs-unranked game, it's probably
+# overestimating upset odds in what are usually lopsided games. Revisit if
+# CFB ever gets a real stats-based confidence feed.
+RETIRED_SEGMENTS = {("underdog", "cfb")}
+
+
+def _allowed_for_paper_trading(row, signal_type):
     """Connor's explicit ask: most of his CFB paper-trading losses were on
     unranked teams — small/mid-major games where this app's CFB signal (no
     real team-stats feed behind it, unlike NFL/NBA — see stats.py) is least
     reliable. NCAAF bets are now gated to games where at least one side is
     currently AP Top 25 ranked; every other league is untouched."""
+    if (signal_type, row["league"]) in RETIRED_SEGMENTS:
+        return False
     if row["league"] != "cfb":
         return True
     team_names = [o["name"] for o in row.get("outcomes", [])]
@@ -132,12 +157,23 @@ MIN_SEGMENT_SAMPLES = 10
 # the same way). Below ADAPTIVE_MIN_SAMPLES settled bets in a
 # (signal_type, league) segment there's no real track record yet, so it
 # bets at the flat baseline; above that, stake scales with that segment's
-# own win rate — win_rate 0.5 (coin flip) -> 1.0x (baseline), 0.75 -> 1.5x,
-# 0.25 -> 0.5x, clamped to the two bounds below. This is deliberately a
-# small, inspectable rule (not a trained model): bet bigger where this
-# account has actually been right, smaller where it hasn't, and let
-# MIN_SEGMENT_SAMPLES's existing hard pause (above) take over entirely
-# once a segment is a confirmed loser.
+# own realized ROI (pnl / staked) — 0% ROI stays at 1.0x (baseline), +75%
+# or better maxes out at 1.75x, -60% or worse floors at 0.4x, clamped to
+# the two bounds below. This is deliberately a small, inspectable rule
+# (not a trained model): bet bigger where this account has actually been
+# PROFITABLE, smaller where it hasn't, and let MIN_SEGMENT_SAMPLES's
+# existing hard pause (above) take over entirely once a segment is a
+# confirmed loser.
+#
+# Originally scaled off win_rate - 0.5 instead of ROI — Connor caught the
+# flaw (2026-11-01): win rate vs. a 50% coin-flip baseline makes no sense
+# for a bet type whose breakeven win rate isn't 50%. Underdog bets are
+# bought cheap (often 15-45c), so a 35-40% win rate there is genuinely
+# profitable, not "below average" — the old formula was shrinking stakes
+# on the single most profitable segment in the whole system (NBA
+# underdog) for exactly that reason. ROI already nets out each segment's
+# own breakeven price, so it scales correctly for underdogs and locks
+# alike without needing to know what "normal" looks like for either.
 ADAPTIVE_MIN_SAMPLES = 5
 ADAPTIVE_MIN_STAKE_MULT = 0.4
 ADAPTIVE_MAX_STAKE_MULT = 1.75
@@ -161,10 +197,10 @@ def _adaptive_stake(state, signal, row, signal_type):
         ),
         None,
     )
-    if segment is None or segment["count"] < ADAPTIVE_MIN_SAMPLES:
+    if segment is None or segment["count"] < ADAPTIVE_MIN_SAMPLES or segment["roi_pct"] is None:
         return FLAT_STAKE
-    edge = segment["win_rate"] - 0.5  # -0.5 .. +0.5
-    multiplier = max(ADAPTIVE_MIN_STAKE_MULT, min(ADAPTIVE_MAX_STAKE_MULT, 1.0 + edge * 2.5))
+    roi_fraction = segment["roi_pct"] / 100  # e.g. +75.0 -> 0.75
+    multiplier = max(ADAPTIVE_MIN_STAKE_MULT, min(ADAPTIVE_MAX_STAKE_MULT, 1.0 + roi_fraction))
     return round(FLAT_STAKE * multiplier, 4)
 
 
@@ -353,17 +389,18 @@ def _place_one(state, row, signal, signal_type, stake=None):
 
 
 def _segment_performance(settled_bets):
-    """Win rate and net P/L per (signal_type, league) combo — the unit this
-    app can actually act on ("stop making NHL lock bets", not "stop trusting
-    87% confidence"). A segment is flagged `paused` once it has lost money
-    across MIN_SEGMENT_SAMPLES+ settled bets — enough tries that a real
-    pattern, not one bad beat, is more likely than not."""
+    """Win rate, net P/L, and realized ROI per (signal_type, league) combo —
+    the unit this app can actually act on ("stop making NHL lock bets", not
+    "stop trusting 87% confidence"). A segment is flagged `paused` once it
+    has lost money across MIN_SEGMENT_SAMPLES+ settled bets — enough tries
+    that a real pattern, not one bad beat, is more likely than not."""
     agg = {}
     for b in settled_bets:
         key = (b["signal_type"], b["league"])
-        a = agg.setdefault(key, {"count": 0, "wins": 0, "pnl": 0.0})
+        a = agg.setdefault(key, {"count": 0, "wins": 0, "pnl": 0.0, "staked": 0.0})
         a["count"] += 1
         a["pnl"] += b["pnl"]
+        a["staked"] += b["stake"]
         if b["status"] == "won":
             a["wins"] += 1
 
@@ -376,6 +413,7 @@ def _segment_performance(settled_bets):
                 "count": a["count"],
                 "win_rate": round(a["wins"] / a["count"], 4),
                 "pnl": round(a["pnl"], 4),
+                "roi_pct": round(a["pnl"] / a["staked"] * 100, 2) if a["staked"] else None,
                 "paused": a["count"] >= MIN_SEGMENT_SAMPLES and a["pnl"] < 0,
             }
         )
@@ -386,8 +424,9 @@ def _run_strategy(strategy_id, cfg, underdog_rows, lock_rows, watch):
     """Places new bets for one strategy against the current signal set,
     subject to the same gates every strategy gets regardless of its own
     filter/stake rules:
-    - CFB games must be a ranked matchup (_allowed_for_paper_trading); every
-      other league is untouched,
+    - a (signal_type, league) combo in RETIRED_SEGMENTS is skipped outright,
+      and CFB games must additionally be a ranked matchup
+      (_allowed_for_paper_trading); every other league is untouched,
     - a lock signal must also pass this strategy's own `extra_lock_gate`
       (only `locks` uses this for anything — its live dip-buying),
     - a (signal_type, league) combo currently flagged `paused` by this
@@ -417,7 +456,7 @@ def _run_strategy(strategy_id, cfg, underdog_rows, lock_rows, watch):
         a bet actually got placed."""
         if state["balance"] < MIN_BALANCE_TO_BET:
             return True
-        if not _allowed_for_paper_trading(row):
+        if not _allowed_for_paper_trading(row, signal_type):
             return False
         if _already_bet(state, row["event_id"], signal["outcome"]):
             return False

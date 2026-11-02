@@ -446,12 +446,15 @@ function buildSegmentTable(segments) {
   const rows = segments
     .map((s) => {
       const pnlClass = s.pnl > 0 ? "pnl-pos" : s.pnl < 0 ? "pnl-neg" : "";
+      const roiClass = s.roi_pct > 0 ? "pnl-pos" : s.roi_pct < 0 ? "pnl-neg" : "";
+      const roiStr = s.roi_pct === null || s.roi_pct === undefined ? "—" : (s.roi_pct >= 0 ? "+" : "") + s.roi_pct.toFixed(1) + "%";
       const statusClass = s.paused ? "lost" : "won";
       const statusLabel = s.paused ? "paused" : "active";
       return `
       <tr>
         <td>${s.signal_type} · ${s.league.toUpperCase()}</td>
         <td>${pct(s.win_rate)}</td>
+        <td class="${roiClass}">${roiStr}</td>
         <td class="${pnlClass}">${money(s.pnl)}</td>
         <td>${s.count}</td>
         <td><span class="bet-status ${statusClass}">${statusLabel}</span></td>
@@ -460,7 +463,7 @@ function buildSegmentTable(segments) {
     .join("");
   return `
     <table class="calibration-table">
-      <thead><tr><th>Bet type</th><th>Win rate</th><th>P/L</th><th># settled</th><th>Status</th></tr></thead>
+      <thead><tr><th>Bet type</th><th>Win rate</th><th>ROI</th><th>P/L</th><th># settled</th><th>Status</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
 }
