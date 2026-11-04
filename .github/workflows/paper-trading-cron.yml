@@ -53,7 +53,23 @@ jobs:
           git add data/paper_trades*.json
           if ! git diff --cached --quiet; then
             git commit -m "Paper trading: automated cycle $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push
+            # The deployed dashboard reads Redis, not this git history — this
+            # push is just a backup/sync of the state files, so a transient
+            # GitHub-side error here (seen in practice: a bare 500 on push,
+            # nothing wrong with this repo or the commit) shouldn't fail the
+            # whole run. Retry with backoff, rebasing onto origin each time
+            # in case something else landed on main in between.
+            attempt=1
+            until git push; do
+              if [ "$attempt" -ge 5 ]; then
+                echo "::error::git push failed after $attempt attempts"
+                exit 1
+              fi
+              echo "Push failed (attempt $attempt/5) — pulling and retrying..."
+              sleep $((attempt * 5))
+              git pull --rebase --autostash
+              attempt=$((attempt + 1))
+            done
           else
             echo "No state changes this run."
           fi
