@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 43.6391,
+  "balance": 36.7326,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -1697,26 +1697,48 @@
       "polymarket_url": "https://polymarket.com/event/nba-was-atl-2026-11-06"
     },
     {
-      "id": "f2064fb9b1",
-      "event_id": "1284234",
+      "id": "3a3ab372e0",
+      "event_id": "1274876",
       "league": "nba",
-      "title": "Thunder vs. Grizzlies",
-      "outcome": "Grizzlies",
-      "settlement_key": "Grizzlies",
+      "title": "Hawks vs. Wizards",
+      "outcome": "Wizards",
+      "settlement_key": "Wizards",
       "token_id": null,
       "signal_type": "underdog",
-      "game_start": "2026-11-07T01:00:00+00:00",
+      "game_start": "2026-11-05T00:00:00+00:00",
       "basis": "pregame",
-      "confidence": 0.7412,
-      "price": 0.47,
+      "confidence": 0.5525,
+      "price": 0.44,
       "stake": 7.244,
-      "shares": 15.4128,
-      "placed_at": "2026-11-03T09:39:42.232911+00:00",
+      "shares": 16.4636,
+      "placed_at": "2026-11-04T09:54:07.132212+00:00",
+      "status": "lost",
+      "settled_at": "2026-11-05T03:27:50.360596+00:00",
+      "payout": 0.0,
+      "pnl": -7.244,
+      "polymarket_url": "https://polymarket.com/event/nba-atl-was-2026-11-04"
+    },
+    {
+      "id": "92d6035ff4",
+      "event_id": "1276202",
+      "league": "nba",
+      "title": "Cavaliers vs. Thunder",
+      "outcome": "Cavaliers",
+      "settlement_key": "Cavaliers",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-11-05T01:00:00+00:00",
+      "basis": "live",
+      "confidence": 0.193,
+      "price": 0.001,
+      "stake": 6.9065,
+      "shares": 6906.5,
+      "placed_at": "2026-11-05T03:27:50.465949+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
       "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/nba-okc-mem-2026-11-06"
+      "polymarket_url": "https://polymarket.com/event/nba-cle-okc-2026-11-04"
     }
   ]
 }

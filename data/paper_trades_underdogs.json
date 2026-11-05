@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 77.0675,
+  "balance": 72.0675,
   "bets": [
     {
       "id": "345ebf5b08",
@@ -1367,26 +1367,48 @@
       "polymarket_url": "https://polymarket.com/event/nba-was-atl-2026-11-06"
     },
     {
-      "id": "a3ab516c34",
-      "event_id": "1284234",
+      "id": "64c2970f43",
+      "event_id": "1274876",
       "league": "nba",
-      "title": "Thunder vs. Grizzlies",
-      "outcome": "Grizzlies",
-      "settlement_key": "Grizzlies",
+      "title": "Hawks vs. Wizards",
+      "outcome": "Wizards",
+      "settlement_key": "Wizards",
       "token_id": null,
       "signal_type": "underdog",
-      "game_start": "2026-11-07T01:00:00+00:00",
+      "game_start": "2026-11-05T00:00:00+00:00",
       "basis": "pregame",
-      "confidence": 0.7412,
-      "price": 0.47,
+      "confidence": 0.5525,
+      "price": 0.44,
       "stake": 5.0,
-      "shares": 10.6383,
-      "placed_at": "2026-11-03T09:39:40.294582+00:00",
+      "shares": 11.3636,
+      "placed_at": "2026-11-04T09:54:04.845399+00:00",
+      "status": "lost",
+      "settled_at": "2026-11-05T03:27:49.421051+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
+      "polymarket_url": "https://polymarket.com/event/nba-atl-was-2026-11-04"
+    },
+    {
+      "id": "637bc0406c",
+      "event_id": "1276202",
+      "league": "nba",
+      "title": "Cavaliers vs. Thunder",
+      "outcome": "Cavaliers",
+      "settlement_key": "Cavaliers",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-11-05T01:00:00+00:00",
+      "basis": "live",
+      "confidence": 0.193,
+      "price": 0.001,
+      "stake": 5.0,
+      "shares": 5000.0,
+      "placed_at": "2026-11-05T03:27:49.517345+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
       "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/nba-okc-mem-2026-11-06"
+      "polymarket_url": "https://polymarket.com/event/nba-cle-okc-2026-11-04"
     }
   ]
 }
