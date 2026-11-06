@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 18.5211,
+  "balance": 12.6521,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -1756,10 +1756,10 @@
       "stake": 6.0705,
       "shares": 12.6469,
       "placed_at": "2026-11-05T11:27:01.206364+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-06T06:29:31.549841+00:00",
+      "payout": 0.0,
+      "pnl": -6.0705,
       "polymarket_url": "https://polymarket.com/event/nba-orl-phx-2026-11-05"
     },
     {
@@ -1805,6 +1805,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nba-por-lal-2026-11-06"
+    },
+    {
+      "id": "75c49fc59e",
+      "event_id": "1284241",
+      "league": "nba",
+      "title": "Knicks vs. Cavaliers",
+      "outcome": "Cavaliers",
+      "settlement_key": "Cavaliers",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-11-08T01:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.5392,
+      "price": 0.36,
+      "stake": 5.869,
+      "shares": 16.3028,
+      "placed_at": "2026-11-06T06:29:31.957457+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-nyk-cle-2026-11-07"
     }
   ]
 }
