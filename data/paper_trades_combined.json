@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 0.0,
+  "balance": 3.8256,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -1536,10 +1536,10 @@
       "stake": 5.0,
       "shares": 7.3529,
       "placed_at": "2026-11-02T02:24:52.626751+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-07T21:54:00.504411+00:00",
+      "payout": 7.3529,
+      "pnl": 2.3529,
       "polymarket_url": "https://polymarket.com/event/cfb-ucla-minnst-2026-11-07"
     },
     {
@@ -1558,10 +1558,10 @@
       "stake": 5.0,
       "shares": 7.4627,
       "placed_at": "2026-11-02T02:24:52.626818+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-07T21:54:00.924952+00:00",
+      "payout": 7.4627,
+      "pnl": 2.4627,
       "polymarket_url": "https://polymarket.com/event/cfb-byu-utah-2026-11-07"
     },
     {
@@ -1915,6 +1915,50 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nba-lal-atl-2026-11-09"
+    },
+    {
+      "id": "40d6a5a4ff",
+      "event_id": "1303986",
+      "league": "cfb",
+      "title": "Illinois vs. UCLA",
+      "outcome": "UCLA",
+      "settlement_key": "UCLA",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-14T02:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.9417,
+      "price": 0.82,
+      "stake": 5.495,
+      "shares": 6.7012,
+      "placed_at": "2026-11-07T21:54:01.235544+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/cfb-ill-ucla-2026-11-13"
+    },
+    {
+      "id": "b57ffac342",
+      "event_id": "1304099",
+      "league": "cfb",
+      "title": "Utah vs. Arizona",
+      "outcome": "Utah",
+      "settlement_key": "Utah",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-14T18:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.9023,
+      "price": 0.64,
+      "stake": 5.495,
+      "shares": 8.5859,
+      "placed_at": "2026-11-07T21:54:01.235663+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/cfb-utah-arz-2026-11-14"
     }
   ]
 }
