@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 52.0675,
+  "balance": 42.0675,
   "bets": [
     {
       "id": "345ebf5b08",
@@ -1360,10 +1360,10 @@
       "stake": 5.0,
       "shares": 10.8696,
       "placed_at": "2026-11-03T09:39:40.294566+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-07T06:18:36.204354+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nba-was-atl-2026-11-06"
     },
     {
@@ -1448,10 +1448,10 @@
       "stake": 5.0,
       "shares": 13.8889,
       "placed_at": "2026-11-05T11:26:58.528564+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-07T06:18:36.232564+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nba-okc-mem-2026-11-06"
     },
     {
@@ -1497,6 +1497,50 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nba-nyk-cle-2026-11-07"
+    },
+    {
+      "id": "7b9cfe9100",
+      "event_id": "1284259",
+      "league": "nba",
+      "title": "Grizzlies vs. Raptors",
+      "outcome": "Grizzlies",
+      "settlement_key": "Grizzlies",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-11-10T00:30:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.6266,
+      "price": 0.41,
+      "stake": 5.0,
+      "shares": 12.1951,
+      "placed_at": "2026-11-07T06:18:36.382904+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-mem-tor-2026-11-09"
+    },
+    {
+      "id": "a9c1b3a670",
+      "event_id": "1312318",
+      "league": "nba",
+      "title": "Grizzlies vs. Cavaliers",
+      "outcome": "Grizzlies",
+      "settlement_key": "Grizzlies",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-11-19T00:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.6145,
+      "price": 0.45,
+      "stake": 5.0,
+      "shares": 11.1111,
+      "placed_at": "2026-11-07T06:18:36.382951+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-mem-cle-2026-11-18"
     }
   ]
 }
