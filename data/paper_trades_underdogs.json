@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 42.0675,
+  "balance": 37.0675,
   "bets": [
     {
       "id": "345ebf5b08",
@@ -1470,10 +1470,10 @@
       "stake": 5.0,
       "shares": 11.3636,
       "placed_at": "2026-11-05T11:26:58.528582+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-07T13:21:49.765446+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nba-por-lal-2026-11-06"
     },
     {
@@ -1541,6 +1541,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nba-mem-cle-2026-11-18"
+    },
+    {
+      "id": "71b1cc090f",
+      "event_id": "1284256",
+      "league": "nba",
+      "title": "Lakers vs. Hawks",
+      "outcome": "Lakers",
+      "settlement_key": "Lakers",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-11-10T00:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.695,
+      "price": 0.49,
+      "stake": 5.0,
+      "shares": 10.2041,
+      "placed_at": "2026-11-07T13:21:50.332201+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-lal-atl-2026-11-09"
     }
   ]
 }
