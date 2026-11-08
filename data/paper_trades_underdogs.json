@@ -1492,10 +1492,10 @@
       "stake": 5.0,
       "shares": 13.8889,
       "placed_at": "2026-11-06T06:29:29.239969+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-08T07:25:40.400189+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nba-nyk-cle-2026-11-07"
     },
     {
