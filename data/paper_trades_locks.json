@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 65.3475,
+  "balance": 71.5514,
   "bets": [
     {
       "id": "d6a641b966",
@@ -744,10 +744,10 @@
       "stake": 7.0838,
       "shares": 11.0684,
       "placed_at": "2026-11-01T23:01:22.940102+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-08T19:02:17.396669+00:00",
+      "payout": 11.0684,
+      "pnl": 3.9846,
       "polymarket_url": "https://polymarket.com/event/nfl-cin-atl-2026-11-08"
     },
     {
@@ -815,6 +815,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nfl-la-was-2026-11-08"
+    },
+    {
+      "id": "bb7b0ac4c5",
+      "event_id": "1217424",
+      "league": "nfl",
+      "title": "Texans vs. Chargers",
+      "outcome": "Texans",
+      "settlement_key": "Texans",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-08T21:05:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8978,
+      "price": 0.68,
+      "stake": 4.8645,
+      "shares": 7.1537,
+      "placed_at": "2026-11-08T19:02:17.620605+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nfl-hou-lac-2026-11-08"
     }
   ]
 }

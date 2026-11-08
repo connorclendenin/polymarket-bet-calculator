@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 0.0,
+  "balance": 2.8125,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -1404,10 +1404,10 @@
       "stake": 5.0,
       "shares": 7.8125,
       "placed_at": "2026-11-01T23:01:23.498269+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-08T19:02:18.037328+00:00",
+      "payout": 7.8125,
+      "pnl": 2.8125,
       "polymarket_url": "https://polymarket.com/event/nfl-cin-atl-2026-11-08"
     },
     {
@@ -2025,6 +2025,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/cfb-missr-ga-2026-11-14"
+    },
+    {
+      "id": "3a4780a5ae",
+      "event_id": "1217411",
+      "league": "nfl",
+      "title": "Broncos vs. Panthers",
+      "outcome": "Broncos",
+      "settlement_key": "Broncos",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-08T18:00:00+00:00",
+      "basis": "live",
+      "confidence": 0.8846,
+      "price": 0.81,
+      "stake": 5.0,
+      "shares": 6.1728,
+      "placed_at": "2026-11-08T19:02:19.160017+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nfl-den-car-2026-11-08"
     }
   ]
 }
