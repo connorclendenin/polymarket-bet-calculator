@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 75.9662,
+  "balance": 77.7209,
   "bets": [
     {
       "id": "d6a641b966",
@@ -832,10 +832,10 @@
       "stake": 4.8645,
       "shares": 7.1537,
       "placed_at": "2026-11-08T19:02:17.620605+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-09T02:15:42.421264+00:00",
+      "payout": 7.1537,
+      "pnl": 2.2892,
       "polymarket_url": "https://polymarket.com/event/nfl-hou-lac-2026-11-08"
     },
     {
@@ -903,6 +903,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nfl-kc-atl-2026-11-15"
+    },
+    {
+      "id": "6ade48ce54",
+      "event_id": "1240318",
+      "league": "nfl",
+      "title": "Commanders vs. Giants",
+      "outcome": "Giants",
+      "settlement_key": "Giants",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-13T01:15:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.81,
+      "price": 0.56,
+      "stake": 5.399,
+      "shares": 9.6411,
+      "placed_at": "2026-11-09T02:15:43.087946+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nfl-was-nyg-2026-11-13"
     }
   ]
 }

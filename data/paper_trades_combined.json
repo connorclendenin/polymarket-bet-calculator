@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 5.1602,
+  "balance": 13.3808,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -1976,10 +1976,10 @@
       "stake": 5.157,
       "shares": 13.5711,
       "placed_at": "2026-11-08T07:25:41.880422+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-09T02:15:44.350002+00:00",
+      "payout": 13.5711,
+      "pnl": 8.4141,
       "polymarket_url": "https://polymarket.com/event/nba-lal-det-2026-11-08"
     },
     {
@@ -2115,26 +2115,48 @@
       "polymarket_url": "https://polymarket.com/event/nfl-kc-atl-2026-11-15"
     },
     {
-      "id": "30a2a22d15",
-      "event_id": "1258846",
-      "league": "nfl",
-      "title": "Rams vs. Cardinals",
-      "outcome": "Rams",
-      "settlement_key": "Rams",
+      "id": "05a47438c0",
+      "event_id": "1284261",
+      "league": "nba",
+      "title": "Nuggets vs. Rockets",
+      "outcome": "Nuggets",
+      "settlement_key": "Nuggets",
       "token_id": null,
-      "signal_type": "lock",
-      "game_start": "2026-11-15T21:05:00+00:00",
+      "signal_type": "underdog",
+      "game_start": "2026-11-10T01:30:00+00:00",
       "basis": "pregame",
-      "confidence": 0.8262,
-      "price": 0.82,
-      "stake": 5.6805,
-      "shares": 6.9274,
-      "placed_at": "2026-11-08T22:50:22.905524+00:00",
+      "confidence": 0.3711,
+      "price": 0.26,
+      "stake": 5.3505,
+      "shares": 20.5788,
+      "placed_at": "2026-11-09T02:15:45.583783+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
       "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/nfl-la-ari-2026-11-15"
+      "polymarket_url": "https://polymarket.com/event/nba-den-hou-2026-11-09"
+    },
+    {
+      "id": "9e693057e9",
+      "event_id": "1217432",
+      "league": "nfl",
+      "title": "Buccaneers vs. Bears",
+      "outcome": "Bears",
+      "settlement_key": "Bears",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-09T01:20:00+00:00",
+      "basis": "live",
+      "confidence": 0.9039,
+      "price": 0.89,
+      "stake": 5.6805,
+      "shares": 6.3826,
+      "placed_at": "2026-11-09T02:15:45.583995+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nfl-tb-chi-2026-11-09"
     }
   ]
 }
