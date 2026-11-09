@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 13.3808,
+  "balance": 14.0904,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -2152,11 +2152,33 @@
       "stake": 5.6805,
       "shares": 6.3826,
       "placed_at": "2026-11-09T02:15:45.583995+00:00",
+      "status": "won",
+      "settled_at": "2026-11-09T09:57:27.634568+00:00",
+      "payout": 6.3826,
+      "pnl": 0.7021,
+      "polymarket_url": "https://polymarket.com/event/nfl-tb-chi-2026-11-09"
+    },
+    {
+      "id": "88ab25839b",
+      "event_id": "1240318",
+      "league": "nfl",
+      "title": "Commanders vs. Giants",
+      "outcome": "Giants",
+      "settlement_key": "Giants",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-13T01:15:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.81,
+      "price": 0.55,
+      "stake": 5.673,
+      "shares": 10.3145,
+      "placed_at": "2026-11-09T09:57:27.836999+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
       "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/nfl-tb-chi-2026-11-09"
+      "polymarket_url": "https://polymarket.com/event/nfl-was-nyg-2026-11-13"
     }
   ]
 }
