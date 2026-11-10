@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 37.2716,
+  "balance": 44.4667,
   "bets": [
     {
       "id": "345ebf5b08",
@@ -1514,10 +1514,10 @@
       "stake": 5.0,
       "shares": 12.1951,
       "placed_at": "2026-11-07T06:18:36.382904+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-10T10:58:37.474845+00:00",
+      "payout": 12.1951,
+      "pnl": 7.1951,
       "polymarket_url": "https://polymarket.com/event/nba-mem-tor-2026-11-09"
     },
     {
@@ -1607,6 +1607,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nba-den-mem-2026-11-11"
+    },
+    {
+      "id": "383ad3102f",
+      "event_id": "1284278",
+      "league": "nba",
+      "title": "Warriors vs. Rockets",
+      "outcome": "Warriors",
+      "settlement_key": "Warriors",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-11-12T02:30:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.4919,
+      "price": 0.36,
+      "stake": 5.0,
+      "shares": 13.8889,
+      "placed_at": "2026-11-10T10:58:37.858487+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-gsw-hou-2026-11-11"
     }
   ]
 }

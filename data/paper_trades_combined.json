@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 14.8764,
+  "balance": 17.3111,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -1844,10 +1844,10 @@
       "stake": 5.4705,
       "shares": 13.3427,
       "placed_at": "2026-11-07T06:18:37.165190+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-10T10:58:38.394425+00:00",
+      "payout": 13.3427,
+      "pnl": 7.8722,
       "polymarket_url": "https://polymarket.com/event/nba-mem-tor-2026-11-09"
     },
     {
@@ -2130,10 +2130,10 @@
       "stake": 5.3505,
       "shares": 20.5788,
       "placed_at": "2026-11-09T02:15:45.583783+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-10T10:58:39.282128+00:00",
+      "payout": 0.0,
+      "pnl": -5.3505,
       "polymarket_url": "https://polymarket.com/event/nba-den-hou-2026-11-09"
     },
     {
@@ -2201,6 +2201,50 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nba-was-ind-2026-11-11"
+    },
+    {
+      "id": "125cb43fb8",
+      "event_id": "1284274",
+      "league": "nba",
+      "title": "Nuggets vs. Grizzlies",
+      "outcome": "Grizzlies",
+      "settlement_key": "Grizzlies",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-11-12T01:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.6004,
+      "price": 0.41,
+      "stake": 5.454,
+      "shares": 13.3024,
+      "placed_at": "2026-11-10T10:58:39.418819+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-den-mem-2026-11-11"
+    },
+    {
+      "id": "0b08038213",
+      "event_id": "1284278",
+      "league": "nba",
+      "title": "Warriors vs. Rockets",
+      "outcome": "Warriors",
+      "settlement_key": "Warriors",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-11-12T02:30:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.4919,
+      "price": 0.36,
+      "stake": 5.454,
+      "shares": 15.15,
+      "placed_at": "2026-11-10T10:58:39.418898+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-gsw-hou-2026-11-11"
     }
   ]
 }
