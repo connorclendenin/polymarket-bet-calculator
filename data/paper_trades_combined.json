@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 14.0904,
+  "balance": 14.8764,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -1910,10 +1910,10 @@
       "stake": 3.0402,
       "shares": 6.2045,
       "placed_at": "2026-11-07T13:21:51.932644+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-10T02:56:43.109947+00:00",
+      "payout": 6.2045,
+      "pnl": 3.1643,
       "polymarket_url": "https://polymarket.com/event/nba-lal-atl-2026-11-09"
     },
     {
@@ -2179,6 +2179,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nfl-was-nyg-2026-11-13"
+    },
+    {
+      "id": "5ad80100f6",
+      "event_id": "1284270",
+      "league": "nba",
+      "title": "Wizards vs. Pacers",
+      "outcome": "Wizards",
+      "settlement_key": "Wizards",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-11-12T00:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.5499,
+      "price": 0.38,
+      "stake": 5.4185,
+      "shares": 14.2592,
+      "placed_at": "2026-11-10T02:56:43.603838+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-was-ind-2026-11-11"
     }
   ]
 }

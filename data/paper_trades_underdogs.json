@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 37.0675,
+  "balance": 37.2716,
   "bets": [
     {
       "id": "345ebf5b08",
@@ -1558,11 +1558,55 @@
       "stake": 5.0,
       "shares": 10.2041,
       "placed_at": "2026-11-07T13:21:50.332201+00:00",
+      "status": "won",
+      "settled_at": "2026-11-10T02:56:41.444849+00:00",
+      "payout": 10.2041,
+      "pnl": 5.2041,
+      "polymarket_url": "https://polymarket.com/event/nba-lal-atl-2026-11-09"
+    },
+    {
+      "id": "fdafd5ae54",
+      "event_id": "1284270",
+      "league": "nba",
+      "title": "Wizards vs. Pacers",
+      "outcome": "Wizards",
+      "settlement_key": "Wizards",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-11-12T00:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.5499,
+      "price": 0.38,
+      "stake": 5.0,
+      "shares": 13.1579,
+      "placed_at": "2026-11-10T02:56:41.526865+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
       "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/nba-lal-atl-2026-11-09"
+      "polymarket_url": "https://polymarket.com/event/nba-was-ind-2026-11-11"
+    },
+    {
+      "id": "b7857a5453",
+      "event_id": "1284274",
+      "league": "nba",
+      "title": "Nuggets vs. Grizzlies",
+      "outcome": "Grizzlies",
+      "settlement_key": "Grizzlies",
+      "token_id": null,
+      "signal_type": "underdog",
+      "game_start": "2026-11-12T01:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.5266,
+      "price": 0.41,
+      "stake": 5.0,
+      "shares": 12.1951,
+      "placed_at": "2026-11-10T02:56:41.526894+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nba-den-mem-2026-11-11"
     }
   ]
 }
