@@ -1580,10 +1580,10 @@
       "stake": 5.0,
       "shares": 13.1579,
       "placed_at": "2026-11-10T02:56:41.526865+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-12T08:13:39.393746+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nba-was-ind-2026-11-11"
     },
     {
@@ -1602,10 +1602,10 @@
       "stake": 5.0,
       "shares": 12.1951,
       "placed_at": "2026-11-10T02:56:41.526894+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-12T08:13:39.459644+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nba-den-mem-2026-11-11"
     },
     {
@@ -1624,10 +1624,10 @@
       "stake": 5.0,
       "shares": 13.8889,
       "placed_at": "2026-11-10T10:58:37.858487+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-12T08:13:39.542544+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nba-gsw-hou-2026-11-11"
     }
   ]
