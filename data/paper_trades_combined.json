@@ -2262,10 +2262,10 @@
       "stake": 5.0885,
       "shares": 24.231,
       "placed_at": "2026-11-12T08:13:41.724427+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-13T02:54:34.976663+00:00",
+      "payout": 0.0,
+      "pnl": -5.0885,
       "polymarket_url": "https://polymarket.com/event/nba-tor-phi-2026-11-12"
     },
     {
