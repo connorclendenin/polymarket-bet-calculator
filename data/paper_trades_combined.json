@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 2.0456,
+  "balance": 0.0,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -2174,10 +2174,10 @@
       "stake": 5.673,
       "shares": 10.3145,
       "placed_at": "2026-11-09T09:57:27.836999+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-13T10:41:25.880857+00:00",
+      "payout": 0.0,
+      "pnl": -5.673,
       "polymarket_url": "https://polymarket.com/event/nfl-was-nyg-2026-11-13"
     },
     {
@@ -2311,6 +2311,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nba-gsw-sas-2026-11-13"
+    },
+    {
+      "id": "9f44b85e21",
+      "event_id": "1258846",
+      "league": "nfl",
+      "title": "Rams vs. Cardinals",
+      "outcome": "Rams",
+      "settlement_key": "Rams",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-15T21:05:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8447,
+      "price": 0.81,
+      "stake": 2.0456,
+      "shares": 2.5254,
+      "placed_at": "2026-11-13T10:41:26.071415+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nfl-la-ari-2026-11-15"
     }
   ]
 }
