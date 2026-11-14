@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 0.0,
+  "balance": 1.0942,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -1932,10 +1932,10 @@
       "stake": 5.495,
       "shares": 6.7012,
       "placed_at": "2026-11-07T21:54:01.235544+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-14T10:53:57.660019+00:00",
+      "payout": 6.7012,
+      "pnl": 1.2062,
       "polymarket_url": "https://polymarket.com/event/cfb-ill-ucla-2026-11-13"
     },
     {
@@ -2284,10 +2284,10 @@
       "stake": 5.0885,
       "shares": 10.3847,
       "placed_at": "2026-11-12T08:13:41.724528+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-14T10:53:58.382453+00:00",
+      "payout": 0.0,
+      "pnl": -5.0885,
       "polymarket_url": "https://polymarket.com/event/nba-cle-mia-2026-11-13"
     },
     {
@@ -2306,10 +2306,10 @@
       "stake": 5.0885,
       "shares": 24.231,
       "placed_at": "2026-11-12T08:13:41.724613+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-14T10:53:58.487481+00:00",
+      "payout": 0.0,
+      "pnl": -5.0885,
       "polymarket_url": "https://polymarket.com/event/nba-gsw-sas-2026-11-13"
     },
     {
@@ -2333,6 +2333,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nfl-la-ari-2026-11-15"
+    },
+    {
+      "id": "94cb132fa8",
+      "event_id": "1304049",
+      "league": "cfb",
+      "title": "Alabama vs. Vanderbilt",
+      "outcome": "Alabama",
+      "settlement_key": "Alabama",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-14T17:45:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.814,
+      "price": 0.86,
+      "stake": 5.607,
+      "shares": 6.5198,
+      "placed_at": "2026-11-14T10:53:58.885680+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/cfb-ala-vand-2026-11-14"
     }
   ]
 }
