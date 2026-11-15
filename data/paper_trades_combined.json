@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 3.4815,
+  "balance": 6.0619,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -1954,10 +1954,10 @@
       "stake": 5.495,
       "shares": 8.5859,
       "placed_at": "2026-11-07T21:54:01.235663+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-15T07:47:33.768807+00:00",
+      "payout": 8.5859,
+      "pnl": 3.0909,
       "polymarket_url": "https://polymarket.com/event/cfb-utah-arz-2026-11-14"
     },
     {
@@ -2421,6 +2421,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/cfb-ucla-mich-2026-11-21"
+    },
+    {
+      "id": "55f8ca58f7",
+      "event_id": "1335846",
+      "league": "cfb",
+      "title": "Oregon vs. Michigan State",
+      "outcome": "Oregon",
+      "settlement_key": "Oregon",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-21T01:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8448,
+      "price": 0.86,
+      "stake": 6.0055,
+      "shares": 6.9831,
+      "placed_at": "2026-11-15T07:47:33.942337+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/cfb-ore-mst-2026-11-20"
     }
   ]
 }
