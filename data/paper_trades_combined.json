@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 8.8551,
+  "balance": 3.8271,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -2460,10 +2460,10 @@
       "stake": 5.414,
       "shares": 7.9618,
       "placed_at": "2026-11-16T00:09:04.559597+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-17T08:17:35.551695+00:00",
+      "payout": 0.0,
+      "pnl": -5.414,
       "polymarket_url": "https://polymarket.com/event/nfl-lac-bal-2026-11-17"
     },
     {
@@ -2531,6 +2531,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nfl-cin-was-2026-11-24"
+    },
+    {
+      "id": "58ba2b24d4",
+      "event_id": "1348836",
+      "league": "nfl",
+      "title": "Seahawks vs. 49ers",
+      "outcome": "49ers",
+      "settlement_key": "49ers",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-29T21:25:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8031,
+      "price": 0.73,
+      "stake": 5.028,
+      "shares": 6.8877,
+      "placed_at": "2026-11-17T08:17:35.720427+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/nfl-sea-sf-2026-11-29"
     }
   ]
 }
