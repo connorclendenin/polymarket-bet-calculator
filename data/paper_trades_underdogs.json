@@ -1697,26 +1697,26 @@
       "polymarket_url": "https://polymarket.com/event/nba-por-nyk-2026-11-21"
     },
     {
-      "id": "09e05cd8dd",
-      "event_id": "1330305",
+      "id": "58c44d847f",
+      "event_id": "1318456",
       "league": "nba",
-      "title": "Grizzlies vs. Timberwolves",
-      "outcome": "Grizzlies",
-      "settlement_key": "Grizzlies",
+      "title": "Clippers vs. Spurs",
+      "outcome": "Clippers",
+      "settlement_key": "Clippers",
       "token_id": null,
       "signal_type": "underdog",
-      "game_start": "2026-11-22T01:00:00+00:00",
-      "basis": "pregame",
-      "confidence": 0.4967,
-      "price": 0.34,
+      "game_start": "2026-11-20T01:00:00+00:00",
+      "basis": "live",
+      "confidence": 0.3515,
+      "price": 0.277,
       "stake": 5.0,
-      "shares": 14.7059,
-      "placed_at": "2026-11-19T04:10:44.622281+00:00",
+      "shares": 18.0505,
+      "placed_at": "2026-11-20T02:39:54.016781+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
       "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/nba-mem-min-2026-11-21"
+      "polymarket_url": "https://polymarket.com/event/nba-lac-sas-2026-11-19"
     }
   ]
 }
