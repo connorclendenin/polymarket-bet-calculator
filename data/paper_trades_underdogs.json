@@ -1646,10 +1646,10 @@
       "stake": 5.0,
       "shares": 20.0,
       "placed_at": "2026-11-19T04:10:44.622198+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-20T10:33:54.483179+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nba-gsw-mem-2026-11-19"
     },
     {
@@ -1712,10 +1712,10 @@
       "stake": 5.0,
       "shares": 18.0505,
       "placed_at": "2026-11-20T02:39:54.016781+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-20T10:33:54.679203+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nba-lac-sas-2026-11-19"
     }
   ]
