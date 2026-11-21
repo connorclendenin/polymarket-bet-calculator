@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 3.8271,
+  "balance": 17.7946,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -1866,10 +1866,10 @@
       "stake": 5.4705,
       "shares": 12.1567,
       "placed_at": "2026-11-07T06:18:37.165304+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-19T02:57:41.151441+00:00",
+      "payout": 12.1567,
+      "pnl": 6.6862,
       "polymarket_url": "https://polymarket.com/event/nba-mem-cle-2026-11-18"
     },
     {
@@ -2372,10 +2372,10 @@
       "stake": 5.828,
       "shares": 6.7767,
       "placed_at": "2026-11-15T01:00:48.685380+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-21T07:34:43.400754+00:00",
+      "payout": 6.7767,
+      "pnl": 0.9487,
       "polymarket_url": "https://polymarket.com/event/cfb-nmx-wyom-2026-11-20"
     },
     {
@@ -2438,10 +2438,10 @@
       "stake": 6.0055,
       "shares": 6.9831,
       "placed_at": "2026-11-15T07:47:33.942337+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-21T07:34:43.553015+00:00",
+      "payout": 6.9831,
+      "pnl": 0.9776,
       "polymarket_url": "https://polymarket.com/event/cfb-ore-mst-2026-11-20"
     },
     {
@@ -2553,6 +2553,50 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/nfl-sea-sf-2026-11-29"
+    },
+    {
+      "id": "e75b9b7559",
+      "event_id": "1335853",
+      "league": "cfb",
+      "title": "Memphis vs. Navy",
+      "outcome": "Memphis",
+      "settlement_key": "Memphis",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-21T17:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8889,
+      "price": 0.57,
+      "stake": 5.9745,
+      "shares": 10.4816,
+      "placed_at": "2026-11-21T07:34:43.722251+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/cfb-mphs-navy-2026-11-21"
+    },
+    {
+      "id": "46a3b5dd9c",
+      "event_id": "1335960",
+      "league": "cfb",
+      "title": "BYU vs. Kansas",
+      "outcome": "BYU",
+      "settlement_key": "BYU",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-21T17:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8571,
+      "price": 0.67,
+      "stake": 5.9745,
+      "shares": 8.9172,
+      "placed_at": "2026-11-21T07:34:43.722364+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/cfb-byu-kan-2026-11-21"
     }
   ]
 }
