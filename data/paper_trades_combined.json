@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 17.7946,
+  "balance": 15.3918,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -2570,10 +2570,10 @@
       "stake": 5.9745,
       "shares": 10.4816,
       "placed_at": "2026-11-21T07:34:43.722251+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-21T21:10:12.454078+00:00",
+      "payout": 0.0,
+      "pnl": -5.9745,
       "polymarket_url": "https://polymarket.com/event/cfb-mphs-navy-2026-11-21"
     },
     {
@@ -2592,11 +2592,55 @@
       "stake": 5.9745,
       "shares": 8.9172,
       "placed_at": "2026-11-21T07:34:43.722364+00:00",
+      "status": "won",
+      "settled_at": "2026-11-21T21:10:12.534862+00:00",
+      "payout": 8.9172,
+      "pnl": 2.9427,
+      "polymarket_url": "https://polymarket.com/event/cfb-byu-kan-2026-11-21"
+    },
+    {
+      "id": "6141a1c69f",
+      "event_id": "1335872",
+      "league": "cfb",
+      "title": "Georgia vs. South Carolina",
+      "outcome": "Georgia",
+      "settlement_key": "Georgia",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-22T00:30:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8571,
+      "price": 0.87,
+      "stake": 5.66,
+      "shares": 6.5057,
+      "placed_at": "2026-11-21T21:10:12.877862+00:00",
       "status": "pending",
       "settled_at": null,
       "payout": null,
       "pnl": null,
-      "polymarket_url": "https://polymarket.com/event/cfb-byu-kan-2026-11-21"
+      "polymarket_url": "https://polymarket.com/event/cfb-ga-sc-2026-11-21"
+    },
+    {
+      "id": "ca83bdb2ef",
+      "event_id": "1382700",
+      "league": "cfb",
+      "title": "TCU vs. Texas Tech",
+      "outcome": "Texas Tech",
+      "settlement_key": "Texas Tech",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-27T01:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.9,
+      "price": 0.79,
+      "stake": 5.66,
+      "shares": 7.1646,
+      "placed_at": "2026-11-21T21:10:12.878072+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/cfb-tcu-txtech-2026-11-26"
     }
   ]
 }
