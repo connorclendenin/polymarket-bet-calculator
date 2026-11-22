@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 13.3863,
+  "balance": 19.9092,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -2482,10 +2482,10 @@
       "stake": 5.414,
       "shares": 7.9618,
       "placed_at": "2026-11-16T00:09:04.559769+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-22T22:02:40.401332+00:00",
+      "payout": 0.0,
+      "pnl": -5.414,
       "polymarket_url": "https://polymarket.com/event/nfl-pit-phi-2026-11-22"
     },
     {
@@ -2504,10 +2504,10 @@
       "stake": 5.414,
       "shares": 6.5229,
       "placed_at": "2026-11-16T00:09:04.559821+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-22T22:02:40.401356+00:00",
+      "payout": 6.5229,
+      "pnl": 1.1089,
       "polymarket_url": "https://polymarket.com/event/nfl-no-chi-2026-11-22"
     },
     {
