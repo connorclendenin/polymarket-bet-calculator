@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 15.3918,
+  "balance": 10.0938,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -2416,10 +2416,10 @@
       "stake": 5.828,
       "shares": 8.4464,
       "placed_at": "2026-11-15T01:00:48.685644+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-22T01:22:32.245846+00:00",
+      "payout": 0.0,
+      "pnl": -5.828,
       "polymarket_url": "https://polymarket.com/event/cfb-ucla-mich-2026-11-21"
     },
     {
@@ -2641,6 +2641,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/cfb-tcu-txtech-2026-11-26"
+    },
+    {
+      "id": "82421e3549",
+      "event_id": "1390314",
+      "league": "cfb",
+      "title": "Texas vs. Texas A&M",
+      "outcome": "Texas",
+      "settlement_key": "Texas",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-28T00:30:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8873,
+      "price": 0.8,
+      "stake": 5.298,
+      "shares": 6.6225,
+      "placed_at": "2026-11-22T01:22:33.010055+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/cfb-tx-txam-2026-11-27"
     }
   ]
 }
