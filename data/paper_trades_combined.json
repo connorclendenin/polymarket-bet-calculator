@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 10.0938,
+  "balance": 18.7773,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -2394,10 +2394,10 @@
       "stake": 5.828,
       "shares": 7.5688,
       "placed_at": "2026-11-15T01:00:48.685501+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-22T08:29:47.072114+00:00",
+      "payout": 7.5688,
+      "pnl": 1.7408,
       "polymarket_url": "https://polymarket.com/event/cfb-utah-tcu-2026-11-21"
     },
     {
@@ -2614,10 +2614,10 @@
       "stake": 5.66,
       "shares": 6.5057,
       "placed_at": "2026-11-21T21:10:12.877862+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-22T08:29:47.250112+00:00",
+      "payout": 6.5057,
+      "pnl": 0.8457,
       "polymarket_url": "https://polymarket.com/event/cfb-ga-sc-2026-11-21"
     },
     {
@@ -2663,6 +2663,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/cfb-tx-txam-2026-11-27"
+    },
+    {
+      "id": "cab7c42018",
+      "event_id": "1390374",
+      "league": "cfb",
+      "title": "Duke vs. Wake Forest",
+      "outcome": "Wake Forest",
+      "settlement_key": "Wake Forest",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-28T20:30:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8511,
+      "price": 0.86,
+      "stake": 5.391,
+      "shares": 6.2686,
+      "placed_at": "2026-11-22T08:29:47.402162+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/cfb-duke-wake-2026-11-28"
     }
   ]
 }

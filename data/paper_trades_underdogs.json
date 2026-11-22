@@ -1690,10 +1690,10 @@
       "stake": 5.0,
       "shares": 15.625,
       "placed_at": "2026-11-19T04:10:44.622263+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-22T08:29:46.687677+00:00",
+      "payout": 0.0,
+      "pnl": -5.0,
       "polymarket_url": "https://polymarket.com/event/nba-por-nyk-2026-11-21"
     },
     {
