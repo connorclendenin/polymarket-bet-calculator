@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 18.7773,
+  "balance": 13.3863,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -2685,6 +2685,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/cfb-duke-wake-2026-11-28"
+    },
+    {
+      "id": "925f379778",
+      "event_id": "1382706",
+      "league": "cfb",
+      "title": "Temple vs. Memphis",
+      "outcome": "Memphis",
+      "settlement_key": "Memphis",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-27T20:30:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.9231,
+      "price": 0.9,
+      "stake": 5.391,
+      "shares": 5.99,
+      "placed_at": "2026-11-22T16:36:47.802623+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/cfb-templ-mphs-2026-11-27"
     }
   ]
 }
