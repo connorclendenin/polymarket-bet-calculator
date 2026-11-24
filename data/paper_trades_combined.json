@@ -2526,10 +2526,10 @@
       "stake": 5.414,
       "shares": 7.6254,
       "placed_at": "2026-11-16T00:09:04.559894+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-24T06:32:41.470651+00:00",
+      "payout": 0.0,
+      "pnl": -5.414,
       "polymarket_url": "https://polymarket.com/event/nfl-cin-was-2026-11-24"
     },
     {
