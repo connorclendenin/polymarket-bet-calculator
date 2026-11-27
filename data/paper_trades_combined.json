@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 19.9092,
+  "balance": 21.6338,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -2636,10 +2636,10 @@
       "stake": 5.66,
       "shares": 7.1646,
       "placed_at": "2026-11-21T21:10:12.878072+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "won",
+      "settled_at": "2026-11-27T13:55:30.113754+00:00",
+      "payout": 7.1646,
+      "pnl": 1.5046,
       "polymarket_url": "https://polymarket.com/event/cfb-tcu-txtech-2026-11-26"
     },
     {
@@ -2707,6 +2707,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/cfb-templ-mphs-2026-11-27"
+    },
+    {
+      "id": "75b99befc7",
+      "event_id": "1390413",
+      "league": "cfb",
+      "title": "Liberty vs. Missouri State",
+      "outcome": "Liberty",
+      "settlement_key": "Liberty",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-28T19:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.9459,
+      "price": 0.9,
+      "stake": 5.44,
+      "shares": 6.0444,
+      "placed_at": "2026-11-27T13:55:30.398918+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/cfb-librty-msrst-2026-11-28"
     }
   ]
 }
