@@ -1,6 +1,6 @@
 {
   "starting_balance": 100.0,
-  "balance": 21.6338,
+  "balance": 16.4518,
   "bets": [
     {
       "id": "a1d8e5571e",
@@ -2702,10 +2702,10 @@
       "stake": 5.391,
       "shares": 5.99,
       "placed_at": "2026-11-22T16:36:47.802623+00:00",
-      "status": "pending",
-      "settled_at": null,
-      "payout": null,
-      "pnl": null,
+      "status": "lost",
+      "settled_at": "2026-11-28T04:14:27.480310+00:00",
+      "payout": 0.0,
+      "pnl": -5.391,
       "polymarket_url": "https://polymarket.com/event/cfb-templ-mphs-2026-11-27"
     },
     {
@@ -2729,6 +2729,28 @@
       "payout": null,
       "pnl": null,
       "polymarket_url": "https://polymarket.com/event/cfb-librty-msrst-2026-11-28"
+    },
+    {
+      "id": "e21f856733",
+      "event_id": "1390411",
+      "league": "cfb",
+      "title": "Tennessee vs. Vanderbilt",
+      "outcome": "Tennessee",
+      "settlement_key": "Tennessee",
+      "token_id": null,
+      "signal_type": "lock",
+      "game_start": "2026-11-29T00:00:00+00:00",
+      "basis": "pregame",
+      "confidence": 0.8873,
+      "price": 0.84,
+      "stake": 5.182,
+      "shares": 6.169,
+      "placed_at": "2026-11-28T04:14:27.815924+00:00",
+      "status": "pending",
+      "settled_at": null,
+      "payout": null,
+      "pnl": null,
+      "polymarket_url": "https://polymarket.com/event/cfb-tenn-vand-2026-11-28"
     }
   ]
 }
